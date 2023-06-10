@@ -1,14 +1,19 @@
 package com.example.buildspace.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -16,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignIn(){
     Column(
@@ -23,6 +29,8 @@ fun SignIn(){
     ) {
         var email by remember{ mutableStateOf("") }
         var password by remember{ mutableStateOf("") }
+
+        val controller = LocalSoftwareKeyboardController.current
 
         Text(
             text = stringResource(id = R.string.login_header),
@@ -54,7 +62,11 @@ fun SignIn(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 8.dp, end = 8.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            )
         )
 
         OutlinedTextField(
@@ -68,7 +80,16 @@ fun SignIn(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 8.dp, end = 8.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    controller?.hide()
+                }
+            )
         )
 
         Button(
