@@ -1,13 +1,17 @@
 package com.example.buildspace.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -27,10 +31,29 @@ fun SignUp(){
         var password by remember{ mutableStateOf("") }
         var confirmPassword by remember{ mutableStateOf("") }
 
-        Row(
+        Text(
+            text = stringResource(id = R.string.signup_header),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, start = 8.dp, end = 8.dp),
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = stringResource(id = R.string.signup_subtitle),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, start = 8.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -72,7 +95,7 @@ fun SignUp(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         OutlinedTextField(
@@ -86,7 +109,7 @@ fun SignUp(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         OutlinedTextField(
@@ -100,7 +123,7 @@ fun SignUp(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         OutlinedTextField(
@@ -114,7 +137,7 @@ fun SignUp(){
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp)
         )
 
         Button(
@@ -140,14 +163,14 @@ fun SignUp(){
             )
         )
 
-        Button(
-            onClick = {},
+        OutlinedButton(
+            onClick = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Black
             )
         ) {
             Text(text = stringResource(id = R.string.sign_up_with_google))
@@ -166,7 +189,6 @@ fun SignUp(){
                 modifier = Modifier.padding(bottom = 8.dp),
                 fontWeight = FontWeight.Light,
                 fontSize = 15.sp,
-                color = Color.Black
             )
 
             Button(
@@ -180,7 +202,6 @@ fun SignUp(){
             }
         }
     }
-
 }
 
 @Preview(showBackground = true)
