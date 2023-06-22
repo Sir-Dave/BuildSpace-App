@@ -13,3 +13,4 @@ val Pink900 = Color(0xFFD70BEA)
 val Pink50 = Color(0xFFFBE2FE)
 
 val Background = Color(0xFFEEE6DE)
+val LightBackground = Color(0xFFF8CEA4)
