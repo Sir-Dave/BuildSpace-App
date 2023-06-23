@@ -23,7 +23,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.models.BottomNavItem
-import com.example.buildspace.ui.theme.Background
+import com.example.buildspace.screens.Dashboard
+import com.example.buildspace.screens.SubscriptionHistory
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 
@@ -80,11 +81,11 @@ class MainActivity : ComponentActivity() {
 fun Navigation(navHostController: NavHostController){
     NavHost(navController = navHostController, startDestination = "home"){
         composable("home"){
-            TempScreen(name = "Home")
+            Dashboard()
 
         }
         composable("subscriptions"){
-            TempScreen(name = "Subscriptions")
+            SubscriptionHistory()
 
         }
         composable("history"){
