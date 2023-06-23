@@ -4,12 +4,9 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.models.BottomNavItem
 import com.example.buildspace.screens.Dashboard
 import com.example.buildspace.screens.SubscriptionHistory
+import com.example.buildspace.screens.SubscriptionPlans
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 
@@ -85,11 +83,11 @@ fun Navigation(navHostController: NavHostController){
 
         }
         composable("subscriptions"){
-            SubscriptionHistory()
+            SubscriptionPlans()
 
         }
         composable("history"){
-            TempScreen(name = "History")
+            SubscriptionHistory()
         }
     }
 }
@@ -133,14 +131,4 @@ fun BottomNavigationBar(
         }
     }
 
-}
-
-@Composable
-fun TempScreen(name: String){
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        Text(text = "$name screen")
-    }
 }
