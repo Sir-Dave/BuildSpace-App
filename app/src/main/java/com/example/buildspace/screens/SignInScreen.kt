@@ -96,7 +96,11 @@ fun SignIn(navHostController: NavHostController){
 
         Button(
             onClick = {
-                navHostController.navigate(Screen.DashboardScreen.route)
+                navHostController.navigate(Screen.HomeScreen.route){
+                    popUpTo(Screen.AuthScreen.route){
+                        inclusive = true
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
