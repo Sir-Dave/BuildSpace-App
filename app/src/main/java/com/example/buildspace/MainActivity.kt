@@ -52,19 +52,19 @@ class MainActivity : ComponentActivity() {
                                 items = listOf(
                                     BottomNavItem(
                                         name = "Home",
-                                        route = "home",
+                                        route = Screen.DashboardScreen.route,
                                         icon = painterResource(id = R.drawable.outline_home_24)
                                     ),
 
                                     BottomNavItem(
                                         name = "Subscriptions",
-                                        route = "subscriptions",
+                                        route = Screen.SubscriptionPlanScreen.route,
                                         icon = painterResource(id = R.drawable.outline_subscriptions_24)
                                     ),
 
                                     BottomNavItem(
                                         name = "History",
-                                        route = "history",
+                                        route = Screen.SubscriptionHistoryScreen.route,
                                         icon = painterResource(id = R.drawable.outline_history_24)
                                     )
                                 ),
