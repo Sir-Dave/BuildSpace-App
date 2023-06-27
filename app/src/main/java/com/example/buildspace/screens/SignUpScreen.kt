@@ -18,12 +18,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.buildspace.R
+import com.example.buildspace.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignUp(){
+fun SignUp(navHostController: NavHostController){
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -226,7 +228,9 @@ fun SignUp(){
             )
 
             Button(
-                onClick = {},
+                onClick = {
+                    navHostController.navigate(Screen.SignInScreen.route)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
                     contentColor = Color.White
@@ -242,6 +246,6 @@ fun SignUp(){
 @Composable
 fun SignUpPreview() {
     BuildSpaceTheme {
-        SignUp()
+        //SignUp()
     }
 }
