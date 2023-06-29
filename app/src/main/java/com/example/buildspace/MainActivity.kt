@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val backStackEntry = navController.currentBackStackEntryAsState()
                 var showBottomBar by rememberSaveable{
-                    mutableStateOf(true)
+                    mutableStateOf(false)
                 }
 
                 showBottomBar = when(backStackEntry.value?.destination?.route) {
