@@ -6,8 +6,9 @@ import com.example.buildspace.data.remote.dto.request.SignInRequest
 import com.example.buildspace.data.remote.dto.response.ApiResponse
 import com.example.buildspace.data.remote.dto.response.LoginResponse
 import com.example.buildspace.domain.repository.AuthRepository
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val api: Api
 ) : AuthRepository{
 

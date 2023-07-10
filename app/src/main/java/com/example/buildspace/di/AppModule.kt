@@ -1,8 +1,6 @@
 package com.example.buildspace.di
 
-import com.example.buildspace.data.remote.Api
-import com.example.buildspace.data.repository.AuthRepositoryImpl
-import com.example.buildspace.domain.repository.AuthRepository
+ import com.example.buildspace.data.remote.Api
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,11 +22,5 @@ object AppModule {
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRepository(api: Api): AuthRepository{
-        return AuthRepositoryImpl(api)
     }
 }
