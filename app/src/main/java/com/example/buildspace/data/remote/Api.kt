@@ -4,6 +4,7 @@ import com.example.buildspace.data.remote.dto.request.RegisterRequest
 import com.example.buildspace.data.remote.dto.request.SignInRequest
 import com.example.buildspace.data.remote.dto.response.ApiResponse
 import com.example.buildspace.data.remote.dto.response.LoginResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -16,10 +17,10 @@ interface Api {
     @POST("api/v1/auth/register")
     suspend fun registerUser(
         @Body registerRequest: RegisterRequest
-    ): ApiResponse
+    ): Response<ApiResponse>
 
     @POST("api/v1/auth/login")
     suspend fun loginUser(
         @Body signInRequest: SignInRequest
-    ): LoginResponse
+    ): Response<LoginResponse>
 }

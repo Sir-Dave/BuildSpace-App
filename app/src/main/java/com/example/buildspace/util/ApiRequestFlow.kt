@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.Response
 
-fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<out Any>> = flow {
+fun <T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<T>> = flow {
     emit(Resource.Loading(true))
 
     withTimeoutOrNull(10000L) {
@@ -25,12 +25,13 @@ fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<out Any>> 
                 response.errorBody()?.let { error ->
                     error.close()
                     val parsedError = Gson().fromJson(error.charStream(), ApiResponse::class.java)
-                    emit(Resource.Error(parsedError.message, parsedError.httpStatusCode))
+                    emit(Resource.Error(message = parsedError.message))
                 }
             }
         }
         catch (e: Exception) {
-            emit(Resource.Error(e.message ?: e.toString(), 400))
+            emit(Resource.Error(message = e.message ?: e.toString()))
         }
-    } ?: emit(Resource.Error("Timeout! Please try again.", 408))
-}.flowOn(Dispatchers.IO)
+    } ?: emit(Resource.Error(message = "Timeout! Please try again."))
+}
+//.flowOn(Dispatchers.IO)
