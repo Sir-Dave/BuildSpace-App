@@ -1,5 +1,7 @@
-package com.example.buildspace.screens
+package com.example.buildspace.presentation.auth.sign_in
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,17 +21,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.navigation.Screen
+import com.example.buildspace.presentation.auth.AuthViewModel
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignIn(navHostController: NavHostController){
+fun SignIn(
+    navHostController: NavHostController,
+    viewModel: AuthViewModel = hiltViewModel()
+){
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        val state = viewModel.authState
+
         var email by remember{ mutableStateOf("") }
         var password by remember{ mutableStateOf("") }
 
@@ -96,11 +106,7 @@ fun SignIn(navHostController: NavHostController){
 
         Button(
             onClick = {
-                navHostController.navigate(Screen.HomeScreen.route){
-                    popUpTo(Screen.AuthScreen.route){
-                        inclusive = true
-                    }
-                }
+                viewModel.loginUser(email, password)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -161,6 +167,29 @@ fun SignIn(navHostController: NavHostController){
                 )
             ) {
                 Text(text = stringResource(id = R.string.register))
+            }
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            if (state.isLoading){
+                CircularProgressIndicator()
+            }
+        }
+
+        if (state.error != null){
+            val context = LocalContext.current
+            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            Log.d("SignInScreen", state.error)
+        }
+
+        else if (state.token != null) {
+            navHostController.navigate(Screen.HomeScreen.route) {
+                popUpTo(Screen.AuthScreen.route) {
+                    inclusive = true
+                }
             }
         }
     }

@@ -1,5 +1,7 @@
-package com.example.buildspace.screens
+package com.example.buildspace.presentation.auth.sign_up
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,14 +21,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.navigation.Screen
+import com.example.buildspace.presentation.auth.AuthViewModel
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignUp(navHostController: NavHostController){
+fun SignUp(
+    navHostController: NavHostController,
+    viewModel: AuthViewModel = hiltViewModel()
+){
+    val state = viewModel.authState
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -177,7 +187,13 @@ fun SignUp(navHostController: NavHostController){
         )
 
         Button(
-            onClick = {},
+            onClick = {
+                viewModel.registerUser(
+                    firstName, lastName, email,
+                    phone, "role_user",
+                    password, confirmPassword
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -238,6 +254,25 @@ fun SignUp(navHostController: NavHostController){
             ) {
                 Text(text = stringResource(id = R.string.login))
             }
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            if (state.isLoading){
+                CircularProgressIndicator()
+            }
+        }
+
+        if (state.error != null){
+            val context = LocalContext.current
+            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            Log.d("SignUpScreen", state.error)
+        }
+
+        else if (state.statusCode in listOf(200, 201)){
+            navHostController.navigate(Screen.SignInScreen.route)
         }
     }
 }
