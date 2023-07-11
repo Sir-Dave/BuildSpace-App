@@ -1,4 +1,4 @@
-package com.example.buildspace.navigation
+package com.example.buildspace.presentation.navigation
 
 sealed class Screen(val route: String){
     object SignInScreen: Screen("sign_in")

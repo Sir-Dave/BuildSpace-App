@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation.auth.sign_in
+package com.example.buildspace.presentation.auth
 
 import android.util.Log
 import android.widget.Toast
@@ -24,8 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.navigation.Screen
-import com.example.buildspace.presentation.auth.AuthViewModel
+import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)

@@ -1,6 +1,6 @@
 package com.example.buildspace
 
-import com.example.buildspace.models.Subscription
+import com.example.buildspace.domain.model.Subscription
 
 object SubscriptionsList {
     val items = listOf(

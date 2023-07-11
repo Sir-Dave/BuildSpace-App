@@ -1,4 +1,4 @@
-package com.example.buildspace.models
+package com.example.buildspace.domain.model
 
 data class Subscription(
     val amount: Float,

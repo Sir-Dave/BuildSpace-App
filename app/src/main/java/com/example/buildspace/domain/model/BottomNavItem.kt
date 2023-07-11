@@ -1,4 +1,4 @@
-package com.example.buildspace.models
+package com.example.buildspace.domain.model
 
 import androidx.compose.ui.graphics.painter.Painter
 

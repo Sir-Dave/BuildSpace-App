@@ -1,4 +1,4 @@
-package com.example.buildspace.screens
+package com.example.buildspace.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
-import com.example.buildspace.composables.CircularText
+import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 

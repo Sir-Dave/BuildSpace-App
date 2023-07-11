@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.buildspace.models.BottomNavItem
-import com.example.buildspace.navigation.Navigation
-import com.example.buildspace.navigation.Screen
+import com.example.buildspace.domain.model.BottomNavItem
+import com.example.buildspace.presentation.navigation.Navigation
+import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 import dagger.hilt.android.AndroidEntryPoint

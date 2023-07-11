@@ -1,11 +1,15 @@
-package com.example.buildspace.navigation
+package com.example.buildspace.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.buildspace.screens.*
+import com.example.buildspace.presentation.auth.SignIn
+import com.example.buildspace.presentation.auth.SignUp
+import com.example.buildspace.presentation.screens.Dashboard
+import com.example.buildspace.presentation.screens.SubscriptionHistory
+import com.example.buildspace.presentation.screens.SubscriptionPlans
 
 @Composable
 fun Navigation(navHostController: NavHostController){

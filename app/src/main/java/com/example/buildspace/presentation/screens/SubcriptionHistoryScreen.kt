@@ -1,4 +1,4 @@
-package com.example.buildspace.screens
+package com.example.buildspace.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -21,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
 import com.example.buildspace.SubscriptionsList
-import com.example.buildspace.composables.CircularText
-import com.example.buildspace.composables.SubscriptionCard
+import com.example.buildspace.presentation.composables.CircularText
+import com.example.buildspace.presentation.composables.SubscriptionCard
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 val subscriptions = SubscriptionsList.items
