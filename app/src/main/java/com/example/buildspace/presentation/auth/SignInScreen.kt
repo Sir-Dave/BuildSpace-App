@@ -33,10 +33,13 @@ fun SignIn(
     navHostController: NavHostController,
     viewModel: AuthViewModel = hiltViewModel()
 ){
+    //val state = viewModel.authState
+    val state by viewModel.authState.collectAsState()
+
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val state = viewModel.authState
 
         var email by remember{ mutableStateOf("") }
         var password by remember{ mutableStateOf("") }
@@ -181,7 +184,7 @@ fun SignIn(
         if (state.error != null){
             val context = LocalContext.current
             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-            Log.d("SignInScreen", state.error)
+            Log.d("SignInScreen", state.error!!)
         }
 
         else if (state.token != null) {

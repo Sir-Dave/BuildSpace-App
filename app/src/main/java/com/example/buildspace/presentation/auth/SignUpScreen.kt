@@ -33,7 +33,8 @@ fun SignUp(
     navHostController: NavHostController,
     viewModel: AuthViewModel = hiltViewModel()
 ){
-    val state = viewModel.authState
+    //val state = viewModel.authState
+    val state by viewModel.authState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -267,7 +268,7 @@ fun SignUp(
         if (state.error != null){
             val context = LocalContext.current
             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-            Log.d("SignUpScreen", state.error)
+            Log.d("SignUpScreen", state.error!!)
         }
 
         else if (state.statusCode in listOf(200, 201)){
