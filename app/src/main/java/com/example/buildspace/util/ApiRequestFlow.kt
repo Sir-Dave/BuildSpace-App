@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.Response
 
-fun <T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<T>> = flow {
+fun <T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<T>> = flow<Resource<T>> {
     emit(Resource.Loading(true))
 
     withTimeoutOrNull(10000L) {
@@ -33,5 +33,4 @@ fun <T> apiRequestFlow(call: suspend () -> Response<T>): Flow<Resource<T>> = flo
             emit(Resource.Error(message = e.message ?: e.toString()))
         }
     } ?: emit(Resource.Error(message = "Timeout! Please try again."))
-}
-//.flowOn(Dispatchers.IO)
+}.flowOn(Dispatchers.IO)
