@@ -1,6 +1,5 @@
 package com.example.buildspace.presentation.auth
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
+import com.example.buildspace.presentation.LoginFormEvent
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
@@ -33,16 +34,27 @@ fun SignIn(
     navHostController: NavHostController,
     viewModel: AuthViewModel = hiltViewModel()
 ){
-    //val state = viewModel.authState
     val state by viewModel.authState.collectAsState()
+    val loginState = viewModel.loginFormState
+    val context = LocalContext.current
+    LaunchedEffect(key1 = context){
+        viewModel.validationEvent.collect{ event ->
+            when (event){
+                is AuthViewModel.ValidationEvent.Success ->{
+                    Toast.makeText(
+                        context,
+                        "Login successful",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-
-        var email by remember{ mutableStateOf("") }
-        var password by remember{ mutableStateOf("") }
+//        val errorMessage = remember { mutableStateOf("") }
 
         val controller = LocalSoftwareKeyboardController.current
 
@@ -66,14 +78,19 @@ fun SignIn(
         )
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = loginState.email,
+            onValueChange = {
+                viewModel.onEvent(LoginFormEvent.EmailChanged(it))
+            },
             label = {
-                Text(text = stringResource(id = R.string.email))
+                Text(
+                    text = loginState.emailError ?: stringResource(id = R.string.email)
+                )
             },
             placeholder = {
                 Text(text = stringResource(id = R.string.email))
             },
+            isError = loginState.emailError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -84,11 +101,16 @@ fun SignIn(
         )
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = {
-                Text(text = stringResource(id = R.string.password))
+            value = loginState.password,
+            onValueChange = {
+                viewModel.onEvent(LoginFormEvent.PasswordChanged(it))
             },
+            label = {
+                Text(
+                    text = loginState.passwordError ?: stringResource(id = R.string.password)
+                )
+            },
+
             placeholder = {
                 Text(text = stringResource(id = R.string.password))
             },
@@ -99,17 +121,17 @@ fun SignIn(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
+            isError = loginState.passwordError != null,
             keyboardActions = KeyboardActions(
                 onDone = {
                     controller?.hide()
                 }
-            )
+            ),
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Button(
-            onClick = {
-                viewModel.loginUser(email, password)
-            },
+            onClick = { viewModel.onEvent(LoginFormEvent.Submit) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -181,13 +203,20 @@ fun SignIn(
             }
         }
 
-        if (state.error != null){
-            val context = LocalContext.current
-            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-            Log.d("SignInScreen", state.error!!)
-        }
+//        if (state.error != null) {
+//            errorMessage.value = state.error!!
+//            Log.d("SignInScreen", state.error!!)
+//        }
+//
+//        if (errorMessage.value.isNotEmpty()) {
+//            Text(
+//                text = errorMessage.value,
+//                color = Color.Red,
+//                modifier = Modifier.padding(8.dp)
+//            )
+//        }
 
-        else if (state.token != null) {
+        if (state.token != null) {
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(Screen.AuthScreen.route) {
                     inclusive = true
@@ -195,7 +224,6 @@ fun SignIn(
             }
         }
     }
-
 }
 
 @Preview(showBackground = true)
