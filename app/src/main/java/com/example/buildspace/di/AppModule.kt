@@ -8,6 +8,7 @@ import com.example.buildspace.data.local.TokenManager
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.AuthInterceptor
 import com.example.buildspace.domain.use_cases.ValidateEmail
+import com.example.buildspace.domain.use_cases.ValidateField
 import com.example.buildspace.domain.use_cases.ValidatePassword
 import com.example.buildspace.domain.use_cases.ValidateRepeatedPassword
 import dagger.Module
@@ -46,6 +47,10 @@ object AppModule {
     @Provides
     fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
         AuthInterceptor(tokenManager)
+
+    @Singleton
+    @Provides
+    fun provideFieldValidator(): ValidateField = ValidateField()
 
     @Singleton
     @Provides
