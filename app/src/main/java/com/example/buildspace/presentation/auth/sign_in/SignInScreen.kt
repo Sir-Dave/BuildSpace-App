@@ -166,6 +166,15 @@ fun SignIn(
             Text(text = stringResource(id = R.string.sign_in_with_google))
         }
 
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            if (state.isLoading){
+                CircularProgressIndicator()
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -194,35 +203,23 @@ fun SignIn(
             }
         }
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            if (state.isLoading){
-                CircularProgressIndicator()
-            }
-        }
-
-//        if (state.error != null) {
-//            errorMessage.value = state.error!!
-//            Log.d("SignInScreen", state.error!!)
-//        }
 //
-//        if (errorMessage.value.isNotEmpty()) {
-//            Text(
-//                text = errorMessage.value,
-//                color = Color.Red,
-//                modifier = Modifier.padding(8.dp)
+//        if (state.error != null) {
+//            Snackbar(
+//                modifier = Modifier.fillMaxWidth(),
+//                content = {
+//                    Text(text = state.error!!)
+//                }
 //            )
 //        }
-
-        if (state.token != null) {
-            navHostController.navigate(Screen.HomeScreen.route) {
-                popUpTo(Screen.AuthScreen.route) {
-                    inclusive = true
-                }
-            }
-        }
+//
+//        if (state.token != null) {
+//            navHostController.navigate(Screen.HomeScreen.route) {
+//                popUpTo(Screen.AuthScreen.route) {
+//                    inclusive = true
+//                }
+//            }
+//        }
     }
 }
 

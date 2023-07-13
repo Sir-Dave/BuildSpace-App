@@ -11,8 +11,11 @@ import com.example.buildspace.data.remote.dto.request.RegisterRequest
 import com.example.buildspace.data.remote.dto.request.SignInRequest
 import com.example.buildspace.domain.repository.AuthRepository
 import com.example.buildspace.domain.use_cases.ValidateEmail
+import com.example.buildspace.domain.use_cases.ValidateField
 import com.example.buildspace.domain.use_cases.ValidatePassword
+import com.example.buildspace.domain.use_cases.ValidateRepeatedPassword
 import com.example.buildspace.presentation.LoginFormEvent
+import com.example.buildspace.presentation.auth.sign_in.LoginFormState
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,11 +28,13 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(
+class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
+    private val validateField: ValidateField,
     private val validateEmail: ValidateEmail,
     private val validatePassword: ValidatePassword,
+    private val validateRepeatedPassword: ValidateRepeatedPassword,
 ): ViewModel() {
 
     private val token = MutableStateFlow<String?>(null)
@@ -49,6 +54,8 @@ class AuthViewModel @Inject constructor(
     }
 
     var loginFormState by mutableStateOf(LoginFormState())
+    var registerFormState by mutableStateOf(RegisterFormState())
+
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvent = validationEventChannel.receiveAsFlow()
 
