@@ -1,6 +1,7 @@
 package com.example.buildspace.presentation.auth.sign_up
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -263,7 +264,32 @@ fun SignUp(
             Text(text = stringResource(id = R.string.sign_up_with_google))
         }
 
-        Row(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(id = R.string.existing_account),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = stringResource(id = R.string.login),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable {
+                    navHostController.navigate(Screen.SignInScreen.route)
+                },
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center
+        )
+
+        /*Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -289,7 +315,7 @@ fun SignUp(
             ) {
                 Text(text = stringResource(id = R.string.login))
             }
-        }
+        }*/
 
         Box(
             modifier = Modifier.fillMaxSize(),
