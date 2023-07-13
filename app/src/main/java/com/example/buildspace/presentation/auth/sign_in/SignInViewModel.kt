@@ -49,8 +49,8 @@ class SignInViewModel @Inject constructor(
 
     var signInFormState by mutableStateOf(SignInFormState())
 
-    private val validationEventChannel = Channel<ValidationEvent>()
-    val validationEvent = validationEventChannel.receiveAsFlow()
+    private val signInEventChannel = Channel<SignInEvent>()
+    val validationEvent = signInEventChannel.receiveAsFlow()
 
     fun onEvent(event: SignInFormEvent){
         when(event){
@@ -85,16 +85,14 @@ class SignInViewModel @Inject constructor(
             )
             return
         }
-        viewModelScope.launch {
-            validationEventChannel.send(ValidationEvent.Success)
-        }
-//        loginUser(
-//            loginFormState.email,
-//            loginFormState.password
-//        )
+
+        loginUser(
+            signInFormState.email,
+            signInFormState.password
+        )
     }
 
-    fun loginUser(email: String, password: String){
+    private fun loginUser(email: String, password: String){
         viewModelScope.launch {
             _authState.value = _authState.value.copy(isLoading = true)
 
@@ -110,6 +108,7 @@ class SignInViewModel @Inject constructor(
                                 user = result.data.user.toUser()
                             )
                             saveToken(_authState.value.token!!)
+                            signInEventChannel.send(SignInEvent.Success)
                         }
 
                         is Resource.Error ->{
@@ -118,6 +117,9 @@ class SignInViewModel @Inject constructor(
                                 error = result.message,
                                 token = null,
                                 user = null
+                            )
+                            signInEventChannel.send(
+                                SignInEvent.Failure(_authState.value.error!!)
                             )
                         }
                         else -> Unit
@@ -139,7 +141,8 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    sealed class ValidationEvent{
-        object Success: ValidationEvent()
+    sealed class SignInEvent{
+        object Success: SignInEvent()
+        data class Failure(val errorMessage: String): SignInEvent()
     }
 }

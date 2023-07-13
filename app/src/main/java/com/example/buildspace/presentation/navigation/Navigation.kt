@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.buildspace.presentation.auth.SignIn
-import com.example.buildspace.presentation.auth.SignUp
+import com.example.buildspace.presentation.auth.sign_in.SignIn
+import com.example.buildspace.presentation.auth.sign_up.SignUp
 import com.example.buildspace.presentation.screens.Dashboard
 import com.example.buildspace.presentation.screens.SubscriptionHistory
 import com.example.buildspace.presentation.screens.SubscriptionPlans

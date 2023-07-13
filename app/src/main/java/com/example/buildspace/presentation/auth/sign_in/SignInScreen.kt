@@ -1,6 +1,7 @@
 package com.example.buildspace.presentation.auth.sign_in
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,14 +19,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.presentation.navigation.Screen
-import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -39,22 +38,26 @@ fun SignIn(
     LaunchedEffect(key1 = context){
         viewModel.validationEvent.collect{ event ->
             when (event){
-                is SignInViewModel.ValidationEvent.Success ->{
+                is SignInViewModel.SignInEvent.Success ->{
+                    navHostController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(Screen.AuthScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is SignInViewModel.SignInEvent.Failure -> {
                     Toast.makeText(
                         context,
-                        "Login successful",
+                        event.errorMessage,
                         Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        val errorMessage = remember { mutableStateOf("") }
-
         val controller = LocalSoftwareKeyboardController.current
 
         Text(
@@ -164,6 +167,32 @@ fun SignIn(
         ) {
             Text(text = stringResource(id = R.string.sign_in_with_google))
         }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(id = R.string.no_account),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = stringResource(id = R.string.register),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable {
+                    navHostController.navigate(Screen.SignUpScreen.route)
+                },
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center
+        )
+
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -174,7 +203,7 @@ fun SignIn(
             }
         }
 
-        Row(
+        /*Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -200,32 +229,6 @@ fun SignIn(
             ) {
                 Text(text = stringResource(id = R.string.register))
             }
-        }
-
-//
-//        if (state.error != null) {
-//            Snackbar(
-//                modifier = Modifier.fillMaxWidth(),
-//                content = {
-//                    Text(text = state.error!!)
-//                }
-//            )
-//        }
-//
-//        if (state.token != null) {
-//            navHostController.navigate(Screen.HomeScreen.route) {
-//                popUpTo(Screen.AuthScreen.route) {
-//                    inclusive = true
-//                }
-//            }
-//        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignInPreview() {
-    BuildSpaceTheme {
-        //SignIn()
+        }*/
     }
 }
