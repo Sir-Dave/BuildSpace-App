@@ -1,6 +1,6 @@
-package com.example.buildspace.presentation.auth
+package com.example.buildspace.presentation.auth.sign_in
 
-data class LoginFormState(
+data class SignInFormState(
     val email: String = "",
     val emailError: String? = null,
     val password: String = "",

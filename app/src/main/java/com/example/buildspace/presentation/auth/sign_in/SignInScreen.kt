@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation.auth
+package com.example.buildspace.presentation.auth.sign_in
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.presentation.LoginFormEvent
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
@@ -32,15 +31,15 @@ import com.example.buildspace.ui.theme.BuildSpaceTheme
 @Composable
 fun SignIn(
     navHostController: NavHostController,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: SignInViewModel = hiltViewModel()
 ){
     val state by viewModel.authState.collectAsState()
-    val loginState = viewModel.loginFormState
+    val loginState = viewModel.signInFormState
     val context = LocalContext.current
     LaunchedEffect(key1 = context){
         viewModel.validationEvent.collect{ event ->
             when (event){
-                is AuthViewModel.ValidationEvent.Success ->{
+                is SignInViewModel.ValidationEvent.Success ->{
                     Toast.makeText(
                         context,
                         "Login successful",
@@ -80,7 +79,7 @@ fun SignIn(
         OutlinedTextField(
             value = loginState.email,
             onValueChange = {
-                viewModel.onEvent(LoginFormEvent.EmailChanged(it))
+                viewModel.onEvent(SignInFormEvent.EmailChanged(it))
             },
             label = {
                 Text(
@@ -103,7 +102,7 @@ fun SignIn(
         OutlinedTextField(
             value = loginState.password,
             onValueChange = {
-                viewModel.onEvent(LoginFormEvent.PasswordChanged(it))
+                viewModel.onEvent(SignInFormEvent.PasswordChanged(it))
             },
             label = {
                 Text(
@@ -131,7 +130,7 @@ fun SignIn(
         )
 
         Button(
-            onClick = { viewModel.onEvent(LoginFormEvent.Submit) },
+            onClick = { viewModel.onEvent(SignInFormEvent.Submit) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),

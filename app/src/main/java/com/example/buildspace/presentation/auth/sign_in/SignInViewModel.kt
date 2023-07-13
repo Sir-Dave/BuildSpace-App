@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation.auth
+package com.example.buildspace.presentation.auth.sign_in
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,15 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buildspace.data.local.TokenManager
 import com.example.buildspace.data.mapper.toUser
-import com.example.buildspace.data.remote.dto.request.RegisterRequest
 import com.example.buildspace.data.remote.dto.request.SignInRequest
 import com.example.buildspace.domain.repository.AuthRepository
 import com.example.buildspace.domain.use_cases.ValidateEmail
 import com.example.buildspace.domain.use_cases.ValidateField
-import com.example.buildspace.domain.use_cases.ValidatePassword
-import com.example.buildspace.domain.use_cases.ValidateRepeatedPassword
-import com.example.buildspace.presentation.LoginFormEvent
-import com.example.buildspace.presentation.auth.sign_in.LoginFormState
+import com.example.buildspace.presentation.auth.AuthState
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,13 +24,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class SignInViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
     private val validateField: ValidateField,
     private val validateEmail: ValidateEmail,
-    private val validatePassword: ValidatePassword,
-    private val validateRepeatedPassword: ValidateRepeatedPassword,
 ): ViewModel() {
 
     private val token = MutableStateFlow<String?>(null)
@@ -53,31 +47,30 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    var loginFormState by mutableStateOf(LoginFormState())
-    var registerFormState by mutableStateOf(RegisterFormState())
+    var signInFormState by mutableStateOf(SignInFormState())
 
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvent = validationEventChannel.receiveAsFlow()
 
-    fun onEvent(event: LoginFormEvent){
+    fun onEvent(event: SignInFormEvent){
         when(event){
-            is LoginFormEvent.EmailChanged -> {
-                loginFormState = loginFormState.copy( email = event.email)
+            is SignInFormEvent.EmailChanged -> {
+                signInFormState = signInFormState.copy( email = event.email)
             }
 
-            is LoginFormEvent.PasswordChanged -> {
-                loginFormState = loginFormState.copy( password = event.password)
+            is SignInFormEvent.PasswordChanged -> {
+                signInFormState = signInFormState.copy( password = event.password)
             }
 
-            is LoginFormEvent.Submit -> {
+            is SignInFormEvent.Submit -> {
                 submitData()
             }
         }
     }
 
     private fun submitData() {
-        val emailResult = validateEmail.execute(loginFormState.email)
-        val passwordResult = validatePassword.execute(loginFormState.password)
+        val emailResult = validateEmail.execute(signInFormState.email)
+        val passwordResult = validateField.execute(signInFormState.password)
 
         val hasError = listOf(
             emailResult,
@@ -85,7 +78,7 @@ class LoginViewModel @Inject constructor(
         ).any{ !it.isSuccessful}
 
         if (hasError){
-            loginFormState = loginFormState.copy(
+            signInFormState = signInFormState.copy(
                 emailError = emailResult.errorMessage,
                 passwordError = passwordResult.errorMessage
 
@@ -99,47 +92,6 @@ class LoginViewModel @Inject constructor(
 //            loginFormState.email,
 //            loginFormState.password
 //        )
-    }
-
-    fun registerUser(firstName: String, lastName: String, email: String,
-                     phoneNumber: String, role: String, password: String,
-                     confirmPassword: String){
-
-        viewModelScope.launch {
-            _authState.value = _authState.value.copy(isLoading = true)
-
-            val request = RegisterRequest(
-                firstName = firstName,
-                lastName = lastName,
-                email = email,
-                phoneNumber = phoneNumber,
-                role = role,
-                password = password,
-                confirmPassword = confirmPassword
-            )
-            authRepository.registerUser(request).collect{
-                withContext(Dispatchers.Main){
-                    when (val result = it){
-                        is Resource.Success ->{
-                            _authState.value = _authState.value.copy(
-                                isLoading = false,
-                                error = null,
-                                statusCode = it.data!!.httpStatusCode
-                            )
-                        }
-
-                        is Resource.Error ->{
-                            _authState.value = _authState.value.copy(
-                                isLoading = false,
-                                error = result.message,
-                                statusCode = it.data!!.httpStatusCode
-                            )
-                        }
-                        else -> Unit
-                    }
-                }
-            }
-        }
     }
 
     fun loginUser(email: String, password: String){

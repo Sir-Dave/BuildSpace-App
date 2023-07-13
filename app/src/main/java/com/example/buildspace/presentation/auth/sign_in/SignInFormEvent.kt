@@ -1,7 +1,7 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.auth.sign_in
 
-sealed class LoginFormEvent{
-    data class EmailChanged(val email: String): LoginFormEvent()
-    data class PasswordChanged(val password: String): LoginFormEvent()
-    object Submit: LoginFormEvent()
+sealed class SignInFormEvent{
+    data class EmailChanged(val email: String): SignInFormEvent()
+    data class PasswordChanged(val password: String): SignInFormEvent()
+    object Submit: SignInFormEvent()
 }
