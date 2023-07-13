@@ -1,6 +1,5 @@
-package com.example.buildspace.presentation.auth
+package com.example.buildspace.presentation.auth.sign_up
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,35 +16,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.presentation.navigation.Screen
-import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUp(
     navHostController: NavHostController,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: SignUpViewModel = hiltViewModel()
 ){
-    //val state = viewModel.authState
     val state by viewModel.authState.collectAsState()
+    val signUpState = viewModel.signUpFormState
+    val context = LocalContext.current
+    LaunchedEffect(key1 = context){
+        viewModel.registrationEvent.collect{ event ->
+            when (event){
+                is SignUpViewModel.RegistrationEvent.Success ->{
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT).show()
+
+                    navHostController.navigate(Screen.SignInScreen.route)
+                }
+
+                is SignUpViewModel.RegistrationEvent.Failure -> {
+                    Toast.makeText(
+                        context,
+                        event.errorMessage,
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        var firstName by remember{ mutableStateOf("") }
-        var lastName by remember{ mutableStateOf("") }
-        var email by remember{ mutableStateOf("") }
-        var phone by remember{ mutableStateOf("") }
-        var password by remember{ mutableStateOf("") }
-        var confirmPassword by remember{ mutableStateOf("") }
-
         val controller = LocalSoftwareKeyboardController.current
 
         Text(
@@ -75,14 +88,24 @@ fun SignUp(
         ) {
 
             OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
+                value = signUpState.firstName,
+                onValueChange = { viewModel.onEvent(SignUpFormEvent.FirstNameChanged(it)) },
                 label = {
-                    Text(text = stringResource(id = R.string.first_name))
+                    if (signUpState.firstNameError != null){
+                        Text(
+                            text = signUpState.firstNameError,
+                            fontSize = 12.sp
+                        )
+                    }
+                    else {
+                        Text(text = stringResource(id = R.string.first_name))
+                    }
+
                 },
                 placeholder = {
                     Text(text = stringResource(id = R.string.first_name))
                 },
+                isError = signUpState.firstNameError != null,
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -93,14 +116,24 @@ fun SignUp(
             Spacer(modifier = Modifier.width(16.dp))
 
             OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
+                value = signUpState.lastName,
+                onValueChange = { viewModel.onEvent(SignUpFormEvent.LastNameChanged(it)) },
                 label = {
-                    Text(text = stringResource(id = R.string.last_name))
+                    if (signUpState.lastNameError != null){
+                        Text(
+                            text = signUpState.lastNameError,
+                            fontSize = 12.sp
+                        )
+                    }
+                    else {
+                        Text(text = stringResource(id = R.string.last_name))
+                    }
+
                 },
                 placeholder = {
                     Text(text = stringResource(id = R.string.last_name))
                 },
+                isError = signUpState.lastNameError != null,
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -110,14 +143,15 @@ fun SignUp(
         }
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = signUpState.email,
+            onValueChange = { viewModel.onEvent(SignUpFormEvent.EmailChanged(it)) },
             label = {
-                Text(text = stringResource(id = R.string.email))
+                Text(text = signUpState.emailError ?: stringResource(id = R.string.email))
             },
             placeholder = {
                 Text(text = stringResource(id = R.string.email))
             },
+            isError = signUpState.emailError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -128,14 +162,15 @@ fun SignUp(
         )
 
         OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
+            value = signUpState.phone,
+            onValueChange = { viewModel.onEvent(SignUpFormEvent.PhoneChanged(it)) },
             label = {
-                Text(text = stringResource(id = R.string.phone_number))
+                Text(text = signUpState.phoneError ?: stringResource(id = R.string.phone_number))
             },
             placeholder = {
                 Text(text = stringResource(id = R.string.phone_number))
             },
+            isError = signUpState.phoneError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -146,32 +181,35 @@ fun SignUp(
         )
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = signUpState.password,
+            onValueChange = { viewModel.onEvent(SignUpFormEvent.PasswordChanged(it)) },
             label = {
-                Text(text = stringResource(id = R.string.password))
+                Text(text = signUpState.passwordError ?: stringResource(id = R.string.password))
             },
             placeholder = {
                 Text(text = stringResource(id = R.string.password))
             },
+            isError = signUpState.passwordError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Next
-            )
+            ),
+            visualTransformation = PasswordVisualTransformation()
         )
 
         OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
+            value = signUpState.repeatedPassword,
+            onValueChange = { viewModel.onEvent(SignUpFormEvent.RepeatedPasswordChanged(it)) },
             label = {
-                Text(text = stringResource(id = R.string.confirm_password))
+                Text(text = signUpState.repeatedPasswordError ?: stringResource(id = R.string.confirm_password))
             },
             placeholder = {
                 Text(text = stringResource(id = R.string.confirm_password))
             },
+            isError = signUpState.repeatedPasswordError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -183,16 +221,13 @@ fun SignUp(
                 onDone = {
                     controller?.hide()
                 }
-            )
+            ),
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Button(
             onClick = {
-                viewModel.registerUser(
-                    firstName, lastName, email,
-                    phone, "role_user",
-                    password, confirmPassword
-                )
+                viewModel.onEvent(SignUpFormEvent.Submit)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -264,23 +299,5 @@ fun SignUp(
                 CircularProgressIndicator()
             }
         }
-
-        if (state.error != null){
-            val context = LocalContext.current
-            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-            Log.d("SignUpScreen", state.error!!)
-        }
-
-        else if (state.statusCode in listOf(200, 201)){
-            navHostController.navigate(Screen.SignInScreen.route)
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpPreview() {
-    BuildSpaceTheme {
-        //SignUp()
     }
 }
