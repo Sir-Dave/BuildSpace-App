@@ -18,4 +18,11 @@
     <string name="signup_header">BuildSpace</string>
     <string name="signup_subtitle">Quality workspace, home away from home</string>
 
+    <string name="card_number">Card Number</string>
+    <string name="expiry_date">Expiry Date</string>
+    <string name="cvc">CVC</string>
+    <string name="card_name">Card Name</string>
+    <string name="pay">Pay</string>
+
+
 </resources>
