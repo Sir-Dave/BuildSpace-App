@@ -1,7 +1,9 @@
 package com.example.buildspace.di
 
 import com.example.buildspace.data.repository.AuthRepositoryImpl
+import com.example.buildspace.data.repository.SubscriptionRepositoryImpl
 import com.example.buildspace.domain.repository.AuthRepository
+import com.example.buildspace.domain.repository.SubscriptionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,5 +16,11 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
+    abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubscriptionRepository(
+        subscriptionRepositoryImpl: SubscriptionRepositoryImpl
+    ): SubscriptionRepository
 }
