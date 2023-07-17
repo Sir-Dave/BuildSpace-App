@@ -1,9 +1,10 @@
 package com.example.buildspace.domain.model
 
 data class Subscription(
-    val amount: Float,
-    val type: String,
+    val id: String,
     val startDate: String,
     val endDate: String,
-    val isSuccess: Boolean,
+    val type: String,
+    val amount: String,
+    val expired: Boolean,
 )
