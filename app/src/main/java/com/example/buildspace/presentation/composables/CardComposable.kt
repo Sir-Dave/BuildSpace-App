@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.buildspace.R
-import com.example.buildspace.domain.model.Subscription
+import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @Composable
-fun CardDetails(subscription: Subscription){
+fun CardDetails(plan: SubscriptionPlan){
     var cardNumber by remember{ mutableStateOf("") }
     var expiryDate by remember{ mutableStateOf("") }
     var cvc by remember{ mutableStateOf("") }
@@ -44,7 +44,7 @@ fun CardDetails(subscription: Subscription){
             textAlign = TextAlign.Center
         )
         Text(
-            text = "You are about to make payment for ${subscription.type} at #${subscription.amount.toInt()}",
+            text = "You are about to make payment for ${plan.name} at #${plan.amount}",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -175,7 +175,7 @@ fun CardDetails(subscription: Subscription){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDialog(
-    subscription: Subscription
+    plan: SubscriptionPlan
 ){
     Dialog(onDismissRequest = { /*TODO*/ }) {
         OutlinedCard(
@@ -185,7 +185,7 @@ fun MyDialog(
 //                contentColor = Color(0xFFBE9870)
 //            )
         ) {
-            CardDetails(subscription = subscription)
+            CardDetails(plan = plan)
         }
         
     }
@@ -195,12 +195,11 @@ fun MyDialog(
 @Preview(showBackground = true)
 fun CardDetailsPreview(){
     BuildSpaceTheme {
-        MyDialog(subscription = Subscription(
-                7000f,
-                "Monthly",
-                "",
-                "",
-                true
+        MyDialog(
+            plan = SubscriptionPlan(
+                name = "Monthly",
+                amount = "7000",
+                numberOfDays = 28
             )
         )
     }

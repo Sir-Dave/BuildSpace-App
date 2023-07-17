@@ -15,14 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
-import com.example.buildspace.domain.model.Subscription
+import com.example.buildspace.domain.model.SubscriptionHistory
 import com.example.buildspace.ui.theme.Green
 import com.example.buildspace.ui.theme.Red
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionCard(
-    subscription: Subscription,
+    subscription: SubscriptionHistory,
     modifier: Modifier = Modifier){
     Row (
         modifier = modifier.fillMaxWidth(),
@@ -50,7 +50,7 @@ fun SubscriptionCard(
 
                 ) {
                 Text(
-                    text = "#${subscription.amount} - ${subscription.type}",
+                    text = "#${subscription.amount} - ${subscription.subscriptionType}",
                     fontSize = 10.sp,
                     letterSpacing = 1.5.sp
                 )
@@ -58,7 +58,7 @@ fun SubscriptionCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "${subscription.startDate} - ${subscription.endDate}",
+                    text = subscription.date,
                     fontSize = 16.sp,
                     fontWeight = FontWeight(500),
                     letterSpacing = 0.15.sp)
