@@ -2,10 +2,7 @@ package com.example.buildspace.data.remote
 
 import com.example.buildspace.data.remote.dto.request.RegisterRequest
 import com.example.buildspace.data.remote.dto.request.SignInRequest
-import com.example.buildspace.data.remote.dto.response.ApiResponse
-import com.example.buildspace.data.remote.dto.response.LoginResponse
-import com.example.buildspace.data.remote.dto.response.SubscriptionPlanDto
-import com.example.buildspace.data.remote.dto.response.SubscriptionDto
+import com.example.buildspace.data.remote.dto.response.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -34,6 +31,11 @@ interface Api {
     suspend fun getAllSubscriptions(
         @Query("userId") userId: String
     ): Response<List<SubscriptionDto>>
+
+    @GET("api/v1/transactions")
+    suspend fun getTransactionHistory(
+        @Query("email") email: String
+    ): Response<List<SubscriptionHistory>>
 
 
     @GET("api/v1/subscriptions/current")

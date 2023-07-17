@@ -14,3 +14,14 @@ data class SubscriptionPlanDto(
     val amount: Float,
     val numberOfDays: Int
 )
+
+data class SubscriptionHistory(
+    val id: String,
+    val amount: Float,
+    val reference: String,
+    val date: String,
+    val status: String,
+    val userEmail: String,
+    val subscriptionType: String,
+    val currency: String
+)

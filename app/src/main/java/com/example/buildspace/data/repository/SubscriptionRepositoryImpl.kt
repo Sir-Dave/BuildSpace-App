@@ -2,6 +2,7 @@ package com.example.buildspace.data.repository
 
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.dto.response.SubscriptionDto
+import com.example.buildspace.data.remote.dto.response.SubscriptionHistory
 import com.example.buildspace.data.remote.dto.response.SubscriptionPlanDto
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.util.Resource
@@ -15,6 +16,12 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override suspend fun getAllUserSubscriptions(userId: String): Flow<Resource<List<SubscriptionDto>>> {
         return apiRequestFlow {
             api.getAllSubscriptions(userId)
+        }
+    }
+
+    override suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistory>>> {
+        return apiRequestFlow {
+            api.getTransactionHistory(email)
         }
     }
 
