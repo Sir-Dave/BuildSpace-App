@@ -5,9 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.buildspace.data.local.TokenManager
+import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.mapper.toUser
 import com.example.buildspace.data.remote.dto.request.SignInRequest
+import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.AuthRepository
 import com.example.buildspace.domain.use_cases.ValidateEmail
 import com.example.buildspace.domain.use_cases.ValidateField
@@ -26,26 +27,13 @@ import javax.inject.Inject
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager,
+    private val authManager: AuthManager,
     private val validateField: ValidateField,
     private val validateEmail: ValidateEmail,
 ): ViewModel() {
 
-    private val token = MutableStateFlow<String?>(null)
-
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> get() = _authState
-
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            tokenManager.getToken().collect {
-                withContext(Dispatchers.Main) {
-                    token.value = it
-                }
-            }
-        }
-    }
 
     var signInFormState by mutableStateOf(SignInFormState())
 
@@ -105,9 +93,10 @@ class SignInViewModel @Inject constructor(
                                 isLoading = false,
                                 error = null,
                                 token = result.data!!.token,
-                                user = result.data.user.toUser()
+                                user =  result.data.user.toUser()
                             )
                             saveToken(_authState.value.token!!)
+                            saveUser(_authState.value.user!!)
                             signInEventChannel.send(SignInEvent.Success)
                         }
 
@@ -131,13 +120,13 @@ class SignInViewModel @Inject constructor(
 
     private fun saveToken(token: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            tokenManager.saveToken(token)
+            authManager.saveToken(token)
         }
     }
 
-    fun deleteToken() {
-        viewModelScope.launch(Dispatchers.IO) {
-            tokenManager.deleteToken()
+    private fun saveUser(user: User){
+        viewModelScope.launch(Dispatchers.IO){
+            authManager.saveUser(user)
         }
     }
 
