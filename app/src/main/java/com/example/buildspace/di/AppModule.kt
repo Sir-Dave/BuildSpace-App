@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.buildspace.data.local.TokenManager
+import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.AuthInterceptor
 import com.example.buildspace.domain.use_cases.ValidateEmail
@@ -16,8 +16,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -41,12 +39,12 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager = TokenManager(context)
+    fun provideAuthManager(@ApplicationContext context: Context): AuthManager = AuthManager(context)
 
     @Singleton
     @Provides
-    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
-        AuthInterceptor(tokenManager)
+    fun provideAuthInterceptor(authManager: AuthManager): AuthInterceptor =
+        AuthInterceptor(authManager)
 
     @Singleton
     @Provides
