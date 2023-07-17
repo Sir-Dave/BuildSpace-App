@@ -2,8 +2,10 @@ package com.example.buildspace.data.mapper
 
 import com.example.buildspace.data.remote.dto.response.SubscriptionDto
 import com.example.buildspace.data.remote.dto.response.SubscriptionHistoryDto
+import com.example.buildspace.data.remote.dto.response.SubscriptionPlanDto
 import com.example.buildspace.domain.model.Subscription
 import com.example.buildspace.domain.model.SubscriptionHistory
+import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.util.Status
 import com.example.buildspace.util.getEnumName
 import java.time.LocalDateTime
@@ -32,7 +34,7 @@ fun SubscriptionDto.toSubscription(): Subscription{
 
 }
 
-fun SubscriptionHistoryDto.toSubscription(): SubscriptionHistory {
+fun SubscriptionHistoryDto.toSubscriptionHistory(): SubscriptionHistory {
     val inputFormat = "yyyy-MM-dd HH:mm:ss"
     val outputFormat = "dd/MM/yyyy"
     val inputFormatter = DateTimeFormatter.ofPattern(inputFormat, Locale.getDefault())
@@ -54,4 +56,13 @@ fun SubscriptionHistoryDto.toSubscription(): SubscriptionHistory {
         currency = currency,
         isSuccess = statusType != Status.CANCELLED
     )
+}
+
+fun SubscriptionPlanDto.toSubscriptionPlan(): SubscriptionPlan{
+    return SubscriptionPlan(
+        name = name,
+        amount = String.format("%.2f", amount),
+        numberOfDays = numberOfDays
+    )
+
 }
