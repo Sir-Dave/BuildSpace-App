@@ -15,7 +15,7 @@ data class SubscriptionPlanDto(
     val numberOfDays: Int
 )
 
-data class SubscriptionHistory(
+data class SubscriptionHistoryDto(
     val id: String,
     val amount: Float,
     val reference: String,

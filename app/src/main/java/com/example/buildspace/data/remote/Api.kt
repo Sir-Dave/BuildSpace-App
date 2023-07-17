@@ -35,7 +35,7 @@ interface Api {
     @GET("api/v1/transactions")
     suspend fun getTransactionHistory(
         @Query("email") email: String
-    ): Response<List<SubscriptionHistory>>
+    ): Response<List<SubscriptionHistoryDto>>
 
 
     @GET("api/v1/subscriptions/current")
