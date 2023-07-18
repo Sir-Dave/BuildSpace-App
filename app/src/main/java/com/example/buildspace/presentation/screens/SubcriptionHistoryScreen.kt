@@ -1,5 +1,6 @@
 package com.example.buildspace.presentation.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,7 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,30 +33,33 @@ fun SubscriptionHistory(
 ){
     val state by viewModel.subscriptionState.collectAsState()
     val subscriptionHistory = state.subscriptionList
-    val user = viewModel.user!!
+    val user = viewModel.user
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val initials by remember {
-            mutableStateOf(
-                "${user.firstName.substring(0, 1)}${user.lastName.substring(0, 1)}"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.End
-        ){
-            CircularText(
-                text = initials,
-                borderColor = Color.Black,
+        user?.let {
+            val initials by remember {
+                mutableStateOf(
+                    "${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}"
+                )
+            }
+            Row(
                 modifier = Modifier
-            )
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.End
+            ){
+                CircularText(
+                    text = initials,
+                    borderColor = Color.Black,
+                    modifier = Modifier
+                )
+            }
         }
+
         Text(
-            text = "Subscription History",
+            text = stringResource(id = R.string.subscription_history),
             fontSize = 24.sp,
             fontWeight = FontWeight(700),
             modifier = Modifier
@@ -127,19 +134,49 @@ fun SubscriptionHistory(
             }
         }
 
-        if (subscriptionHistory.isNotEmpty()){
-            LazyColumn{
-                items(items = subscriptionHistory){ subscription ->
+        if (subscriptionHistory.isEmpty()){
+            EmptySubscriptionHistory()
+        }
+        else {
+            LazyColumn {
+                items(items = subscriptionHistory) { subscription ->
                     SubscriptionCard(subscription = subscription)
                 }
             }
         }
-        else {
-            //TODO: UI for empty subscriptions
-        }
     }
 }
 
+@Composable
+fun EmptySubscriptionHistory(){
+    Column {
+        Image(
+            painter = painterResource(id = R.drawable.whiteboard),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(300.dp)
+        )
+
+        Text(
+            text = stringResource(id = R.string.no_subscription_history),
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFF000000),
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.15.sp
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+    }
+
+
+}
 
 @Preview(showBackground = true)
 @Composable

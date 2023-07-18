@@ -33,7 +33,7 @@ fun Navigation(navHostController: NavHostController){
             route = Screen.HomeScreen.route
         ){
             composable(Screen.DashboardScreen.route){
-                Dashboard()
+                Dashboard(navHostController = navHostController)
             }
 
             composable(Screen.SubscriptionPlanScreen.route){

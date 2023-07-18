@@ -1,6 +1,7 @@
 package com.example.buildspace.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -8,51 +9,65 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.example.buildspace.R
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
+import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(
+    navHostController: NavHostController,
     viewModel: SubscriptionViewModel = hiltViewModel()
 ){
     val state by viewModel.subscriptionState.collectAsState()
     val currentSubscription = state.currentSubscription
+    val user = viewModel.user
 
-    val user = viewModel.user!!
-
-    if (currentSubscription != null) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val name by remember { mutableStateOf(user.firstName) }
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        user?.let {
+            val name by remember { mutableStateOf(it.firstName) }
             val initials by remember {
                 mutableStateOf(
-                    "${user.firstName.substring(0, 1)}${user.lastName.substring(0, 1)}"
+                    "${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}"
                 )
             }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Text(text = "Welcome back $name", modifier = Modifier.padding(8.dp))
+            ) {
+                val welcome = stringResource(id = R.string.welcome_back)
+                Text(text = "$welcome $name", modifier = Modifier.padding(8.dp))
                 CircularText(
                     text = initials,
                     borderColor = Color.Black,
                     modifier = Modifier
                 )
             }
+        }
 
+        if (currentSubscription == null){
+            UserNotSubscribed(navHostController)
+        }
+
+        else {
             Column(
                 modifier = Modifier
                     .padding(8.dp)
@@ -71,7 +86,7 @@ fun Dashboard(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Current Subscription",
+                text = stringResource(id = R.string.current_subscription),
                 fontSize = 20.sp,
                 fontWeight = FontWeight(700),
                 letterSpacing = 0.15.sp,
@@ -105,12 +120,15 @@ fun Dashboard(
                         text = "${currentSubscription.startDate} - ${currentSubscription.endDate}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight(500),
-                        letterSpacing = 0.15.sp)
+                        letterSpacing = 0.15.sp
+                    )
                 }
             }
 
             Button(
-                onClick = {},
+                onClick = {
+                    navHostController.navigate(Screen.SubscriptionHistoryScreen.route)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
                     contentColor = Color.White
@@ -121,13 +139,62 @@ fun Dashboard(
                     .padding(8.dp),
 
                 ) {
-                Text(text = "See Subscription History".uppercase())
+                Text(text = stringResource(R.string.btn_subscription_history).uppercase())
             }
         }
     }
-    else{
-        //TODO: UI when user is not subscribed
+}
+
+@Composable
+fun UserNotSubscribed(
+    navHostController: NavHostController
+){
+    Column {
+        Image(
+            painter = painterResource(id = R.drawable.wireframe),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(300.dp)
+        )
+
+        Text(
+            text = stringResource(id = R.string.inactive_subscription),
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight(500),
+                color = Color(0xFF000000),
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.15.sp
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = {
+                      //TODO: Navigate to payment dialog
+
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(8.dp),
+
+            ) {
+            Text(text = stringResource(id = R.string.subscribe_now).uppercase())
+        }
     }
+
 
 }
 
@@ -136,6 +203,6 @@ fun Dashboard(
 @Composable
 fun DashboardPreview(){
     BuildSpaceTheme{
-        Dashboard()
+        //Dashboard()
     }
 }
