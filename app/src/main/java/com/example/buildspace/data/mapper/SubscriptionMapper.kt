@@ -61,7 +61,7 @@ fun SubscriptionHistoryDto.toSubscriptionHistory(): SubscriptionHistory {
 fun SubscriptionPlanDto.toSubscriptionPlan(): SubscriptionPlan{
     return SubscriptionPlan(
         name = name,
-        amount = String.format("%.2f", amount),
+        amount = amount.toInt().toString(),
         numberOfDays = numberOfDays
     )
 
