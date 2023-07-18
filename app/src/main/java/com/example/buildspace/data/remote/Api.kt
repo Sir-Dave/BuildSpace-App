@@ -26,12 +26,6 @@ interface Api {
         @Body signInRequest: SignInRequest
     ): Response<LoginResponse>
 
-
-    @GET("api/v1/subscriptions")
-    suspend fun getAllSubscriptions(
-        @Query("userId") userId: String
-    ): Response<List<SubscriptionDto>>
-
     @GET("api/v1/transactions")
     suspend fun getTransactionHistory(
         @Query("email") email: String
@@ -49,6 +43,6 @@ interface Api {
     ): Response<SubscriptionDto>
 
     @GET("api/v1/subscriptions/plans")
-    suspend fun getAllSubscriptionPlans(): Response<SubscriptionPlanDto>
+    suspend fun getAllSubscriptionPlans(): Response<List<SubscriptionPlanDto>>
 
 }

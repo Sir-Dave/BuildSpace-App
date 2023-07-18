@@ -13,12 +13,6 @@ import javax.inject.Inject
 class SubscriptionRepositoryImpl @Inject constructor(
     private val api: Api) : SubscriptionRepository{
 
-    override suspend fun getAllUserSubscriptions(userId: String): Flow<Resource<List<SubscriptionDto>>> {
-        return apiRequestFlow {
-            api.getAllSubscriptions(userId)
-        }
-    }
-
     override suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistoryDto>>> {
         return apiRequestFlow {
             api.getTransactionHistory(email)
@@ -37,7 +31,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllSubscriptionPlans(): Flow<Resource<SubscriptionPlanDto>> {
+    override suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlanDto>>> {
         return apiRequestFlow {
             api.getAllSubscriptionPlans()
         }
