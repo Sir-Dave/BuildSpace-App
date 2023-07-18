@@ -30,8 +30,11 @@
     <string name="inactive_subscription">You do not have an active subscription.</string>
     <string name="current_subscription">Current Subscription</string>
     <string name="subscription_history">Subscription History</string>
+    <string name="subscription_plans">Subscription Plans</string>
     <string name="no_subscription_history">No Subscription History</string>
     <string name="btn_subscription_history">See More</string>
+    <string name="special_offers">"See Special Offers</string>
+
 
 
 

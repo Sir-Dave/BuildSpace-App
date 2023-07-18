@@ -178,8 +178,7 @@ fun UserNotSubscribed(
 
         Button(
             onClick = {
-                      //TODO: Navigate to payment dialog
-
+                navHostController.navigate(Screen.SubscriptionPlanScreen.route)
             },
             modifier = Modifier
                 .fillMaxWidth()
