@@ -8,16 +8,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.mapper.toSubscription
 import com.example.buildspace.data.mapper.toSubscriptionHistory
+import com.example.buildspace.data.mapper.toSubscriptionPlan
 import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,16 +26,16 @@ class SubscriptionViewModel @Inject constructor(
 ): ViewModel() {
 
     var user by mutableStateOf<User?>(null)
-    private var _subscriptionState = MutableStateFlow(SubscriptionState())
-    val subscriptionState: StateFlow<SubscriptionState> get() = _subscriptionState
 
+    private val _subscriptionState = MutableStateFlow(SubscriptionState())
+    val subscriptionState: StateFlow<SubscriptionState> = _subscriptionState
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            authManager.getUser().collect {
-                withContext(Dispatchers.Main) {
-                    user = it
-                }
+        viewModelScope.launch {
+
+            coroutineScope {
+                val userResult = async { authManager.getUser().first() }
+                user = userResult.await()
             }
 
             _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
@@ -70,7 +69,6 @@ class SubscriptionViewModel @Inject constructor(
                             else -> Unit
                         }
                     }
-
                 }
 
                 subscriptionHistoryResult.collect{
@@ -97,12 +95,33 @@ class SubscriptionViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
 
-    private fun getSubscriptionPlans(){
-        viewModelScope.launch {
-            repository.getAllSubscriptionPlans()
+            val subscriptionPlansDeferred = async { repository.getAllSubscriptionPlans() }
+            val subscriptionPlansResult = subscriptionPlansDeferred.await()
+            subscriptionPlansResult.collect{
+                withContext(Dispatchers.Main){
+                    when (val result = it) {
+
+                        is Resource.Success -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = null,
+                                subscriptionPlans = result.data!!.map { it.toSubscriptionPlan() }
+                            )
+                        }
+
+                        is Resource.Error -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = result.message,
+                                subscriptionPlans = emptyList()
+                            )
+                        }
+
+                        else -> Unit
+                    }
+                }
+            }
         }
     }
 
