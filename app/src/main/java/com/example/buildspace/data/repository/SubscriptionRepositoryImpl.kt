@@ -1,6 +1,7 @@
 package com.example.buildspace.data.repository
 
 import com.example.buildspace.data.remote.Api
+import com.example.buildspace.data.remote.dto.response.PaymentDto
 import com.example.buildspace.data.remote.dto.response.SubscriptionDto
 import com.example.buildspace.data.remote.dto.response.SubscriptionHistoryDto
 import com.example.buildspace.data.remote.dto.response.SubscriptionPlanDto
@@ -34,6 +35,36 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlanDto>>> {
         return apiRequestFlow {
             api.getAllSubscriptionPlans()
+        }
+    }
+
+    override suspend fun createSubscription(
+        email: String,
+        amount: Double,
+        cardCvv: String,
+        cardNumber: String,
+        cardExpiryMonth: String,
+        cardExpiryYear: String,
+        pin: String,
+        type: String
+    ): Flow<Resource<PaymentDto>> {
+        return apiRequestFlow {
+            api.makePayment(
+                email = email,
+                amount = amount,
+                cardCvv = cardCvv,
+                cardNumber = cardNumber,
+                cardExpiryMonth = cardExpiryMonth,
+                cardExpiryYear = cardExpiryYear,
+                pin = pin,
+                type = type
+            )
+        }
+    }
+
+    override suspend fun sendOTP(otp: String, reference: String): Flow<Resource<PaymentDto>> {
+        return apiRequestFlow {
+            api.sendOTP(otp, reference)
         }
     }
 
