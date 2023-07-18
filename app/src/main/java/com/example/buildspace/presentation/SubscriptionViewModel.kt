@@ -13,6 +13,7 @@ import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,15 +38,16 @@ class SubscriptionViewModel @Inject constructor(
                     user = it
                 }
             }
-        }
-    }
 
-
-    private fun getCurrentSubscription(){
-        viewModelScope.launch {
             _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
             user?.let {
-                repository.getUserCurrentSubscription(it.id).collect{
+                val currentSubscriptionDeferred = async { repository.getUserCurrentSubscription(it.id) }
+                val subscriptionHistoryDeferred = async { repository.getUserTransactionHistory(it.email) }
+
+                val currentSubscriptionResult = currentSubscriptionDeferred.await()
+                val subscriptionHistoryResult = subscriptionHistoryDeferred.await()
+
+                currentSubscriptionResult.collect{
                     withContext(Dispatchers.Main){
                         when (val result = it) {
 
@@ -68,16 +70,10 @@ class SubscriptionViewModel @Inject constructor(
                             else -> Unit
                         }
                     }
-                }
-            }
-        }
-    }
 
-    private fun getSubscriptionHistory(){
-        viewModelScope.launch {
-            _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
-            user?.let {
-                repository.getUserTransactionHistory(it.email).collect{
+                }
+
+                subscriptionHistoryResult.collect{
                     withContext(Dispatchers.Main){
                         when (val result = it) {
 
@@ -108,7 +104,6 @@ class SubscriptionViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getAllSubscriptionPlans()
         }
-
     }
 
     private fun getSubscriptionById(id: String){
