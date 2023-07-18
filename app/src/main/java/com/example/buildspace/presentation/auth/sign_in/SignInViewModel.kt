@@ -33,7 +33,7 @@ class SignInViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _authState = MutableStateFlow(AuthState())
-    val authState: StateFlow<AuthState> get() = _authState
+    val authState: StateFlow<AuthState> = _authState
 
     var signInFormState by mutableStateOf(SignInFormState())
 
