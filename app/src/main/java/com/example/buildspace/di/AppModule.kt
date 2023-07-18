@@ -16,6 +16,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -29,10 +31,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApi(): Api{
+    fun provideApi(okHttpClient: OkHttpClient): Api{
         return Retrofit.Builder()
             .baseUrl(Api.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
             .create()
     }
@@ -45,6 +48,20 @@ object AppModule {
     @Provides
     fun provideAuthInterceptor(authManager: AuthManager): AuthInterceptor =
         AuthInterceptor(authManager)
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor
+    ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .build()
+    }
 
     @Singleton
     @Provides
