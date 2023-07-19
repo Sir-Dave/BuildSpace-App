@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -53,6 +54,10 @@ fun DebitCardComposable(
     val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
 
+    val expirationDateFocusRequester = FocusRequester()
+    val cvvFocusRequester = FocusRequester()
+    val pinFocusRequester = FocusRequester()
+
     Column{
         Text(
             text = "Make Payment",
@@ -85,12 +90,16 @@ fun DebitCardComposable(
             value = cardState.cardNumber,
             onValueChange = {
                 viewModel.onEvent(CardEvent.CardNumberChanged(it))
+
+                if (cardState.cardNumber.length == 16) {
+                    expirationDateFocusRequester.requestFocus()
+                }
             },
             label = {
                 if (cardState.cardNumberError != null){
                     Text(
                         text = cardState.cardNumberError,
-                        fontSize = 10.sp
+                        fontSize = 11.sp
                     )
                 }
                 else {
@@ -108,6 +117,11 @@ fun DebitCardComposable(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext =  {
+                    expirationDateFocusRequester.requestFocus()
+                }
             )
         )
 
@@ -120,12 +134,16 @@ fun DebitCardComposable(
                 value = cardState.cardExpiryDate,
                 onValueChange = {
                     viewModel.onEvent(CardEvent.CardExpiryDateChanged(it))
+
+                    if (cardState.cardExpiryDate.length == 7) {
+                        cvvFocusRequester.requestFocus()
+                    }
                 },
                 label = {
                     if (cardState.cardExpiryDateError != null){
                         Text(
                             text = cardState.cardExpiryDateError,
-                            fontSize = 10.sp
+                            fontSize = 11.sp
                         )
                     }
                     else {
@@ -140,6 +158,11 @@ fun DebitCardComposable(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext =  {
+                        cvvFocusRequester.requestFocus()
+                    }
                 )
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -148,12 +171,16 @@ fun DebitCardComposable(
                 value = cardState.cardCVV,
                 onValueChange = {
                     viewModel.onEvent(CardEvent.CardCVCChanged(it))
+
+                    if (cardState.cardCVV.length == 3) {
+                        pinFocusRequester.requestFocus()
+                    }
                 },
                 label = {
                     if (cardState.cardCVVError != null){
                         Text(
                             text = cardState.cardCVVError,
-                            fontSize = 10.sp
+                            fontSize = 11.sp
                         )
                     }
                     else {
@@ -166,16 +193,48 @@ fun DebitCardComposable(
                 isError = cardState.cardCVVError != null,
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        controller?.hide()
+                    onNext =  {
+                        pinFocusRequester.requestFocus()
                     }
                 )
             )
         }
+
+        OutlinedTextField(
+            value = cardState.cardPin,
+            onValueChange = {
+                viewModel.onEvent(CardEvent.CardPinChanged(it))
+            },
+            label = {
+                if (cardState.cardPinError != null){
+                    Text(
+                        text = cardState.cardPinError,
+                        fontSize = 11.sp
+                    )
+                }
+                else {
+                    Text(text = stringResource(R.string.card_pin))
+                }
+            },
+            placeholder = {
+                Text(text = stringResource(R.string.card_pin))
+            },
+            isError = cardState.cardPinError != null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { controller?.hide() }
+            )
+        )
 
         Button(
             onClick = {
