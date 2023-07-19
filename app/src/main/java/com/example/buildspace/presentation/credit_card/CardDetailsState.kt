@@ -6,5 +6,7 @@ data class CardDetailsState(
     val cardExpiryDate: String = "",
     val cardExpiryDateError: String? = null,
     val cardCVV: String = "",
-    val cardCVVError: String? = null
+    val cardCVVError: String? = null,
+    val cardPin: String = "",
+    val cardPinError: String? = null
 )
