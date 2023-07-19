@@ -20,6 +20,7 @@ import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
+import com.example.buildspace.presentation.credit_card.CreditCardDialog
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 
@@ -30,6 +31,12 @@ fun SubscriptionPlans(
     val state by viewModel.subscriptionState.collectAsState()
     val subscriptionPlans = state.subscriptionPlans
     val user = viewModel.user
+
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -54,6 +61,13 @@ fun SubscriptionPlans(
             }
         }
 
+        if (showDialog && selectedPlan != null){
+            CreditCardDialog(
+                plan = selectedPlan!!,
+                onDismissRequest = { showDialog = false }
+            )
+        }
+
         Text(
             text = stringResource(id = R.string.subscription_plans),
             fontSize = 24.sp,
@@ -72,13 +86,21 @@ fun SubscriptionPlans(
                 PlanCard(
                     plan = subscriptionPlans[0],
                     icons = 1,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    onPlanSelected = { selected, dialog ->
+                        selectedPlan = selected
+                        showDialog = dialog
+                    }
                 )
 
                 PlanCard(
                     plan = subscriptionPlans[1],
                     icons = 2,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    onPlanSelected = { selected, dialog ->
+                        selectedPlan = selected
+                        showDialog = dialog
+                    }
                 )
             }
 
@@ -89,7 +111,11 @@ fun SubscriptionPlans(
             ){
                 PlanCard(
                     plan = subscriptionPlans[2],
-                    icons = 3
+                    icons = 3,
+                    onPlanSelected = { selected, dialog ->
+                        selectedPlan = selected
+                        showDialog = dialog
+                    }
                 )
             }
 
@@ -115,6 +141,7 @@ fun SubscriptionPlans(
 fun PlanCard(
     plan: SubscriptionPlan,
     icons: Int,
+    onPlanSelected: (SubscriptionPlan, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ){
     OutlinedCard(
@@ -151,7 +178,9 @@ fun PlanCard(
             )
 
             Button(
-                onClick = {},
+                onClick = {
+                    onPlanSelected(plan, true)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
                     contentColor = Color.White

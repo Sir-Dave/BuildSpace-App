@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation.composables
+package com.example.buildspace.presentation.credit_card
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,22 +16,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
-import com.example.buildspace.ui.theme.BuildSpaceTheme
+import com.example.buildspace.presentation.SubscriptionViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreditCardDialog(
+    plan: SubscriptionPlan,
+    onDismissRequest: () -> Unit,
+    viewModel: SubscriptionViewModel = hiltViewModel()
+){
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        OutlinedCard(
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.padding(8.dp),
+        ) {
+            DebitCardComposable(
+                viewModel,
+                plan = plan
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DebitCardComposable(plan: SubscriptionPlan){
-    var cardNumber by remember{ mutableStateOf("") }
-    var expiryDate by remember{ mutableStateOf("") }
-    var cvc by remember{ mutableStateOf("") }
-    var cardName by remember{ mutableStateOf("") }
-
+fun DebitCardComposable(
+    viewModel: SubscriptionViewModel,
+    plan: SubscriptionPlan
+){
+    val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
 
     Column{
@@ -63,16 +82,26 @@ fun DebitCardComposable(plan: SubscriptionPlan){
             )
         )
         OutlinedTextField(
-            value = cardNumber,
-            onValueChange = { cardNumber = it
+            value = cardState.cardNumber,
+            onValueChange = {
+                viewModel.onEvent(CardEvent.CardNumberChanged(it))
             },
             label = {
-                Text(text = stringResource(R.string.card_number))
+                if (cardState.cardNumberError != null){
+                    Text(
+                        text = cardState.cardNumberError,
+                        fontSize = 10.sp
+                    )
+                }
+                else {
+                    Text(text = stringResource(R.string.card_number))
+                }
             },
 
             placeholder = {
                 Text(text = stringResource(R.string.card_number))
             },
+            isError = cardState.cardNumberError != null,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -88,18 +117,25 @@ fun DebitCardComposable(plan: SubscriptionPlan){
                 .padding(start = 8.dp, end = 8.dp)
         ) {
             OutlinedTextField(
-                value = expiryDate,
+                value = cardState.cardExpiryDate,
                 onValueChange = {
-                    val formattedText = formatText(it)
-                    expiryDate = formattedText
+                    viewModel.onEvent(CardEvent.CardExpiryDateChanged(it))
                 },
                 label = {
-                    Text(text = stringResource(R.string.expiry_date))
+                    if (cardState.cardExpiryDateError != null){
+                        Text(
+                            text = cardState.cardExpiryDateError,
+                            fontSize = 10.sp
+                        )
+                    }
+                    else {
+                        Text(text = stringResource(R.string.expiry_date))
+                    }
                 },
-
                 placeholder = {
                     Text(text = stringResource(R.string.expiry_date))
                 },
+                isError = cardState.cardExpiryDateError != null,
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -109,50 +145,41 @@ fun DebitCardComposable(plan: SubscriptionPlan){
             Spacer(modifier = Modifier.width(16.dp))
 
             OutlinedTextField(
-                value = cvc,
-                onValueChange = { cvc = it
+                value = cardState.cardCVV,
+                onValueChange = {
+                    viewModel.onEvent(CardEvent.CardCVCChanged(it))
                 },
                 label = {
-                    Text(text = stringResource(R.string.cvc))
+                    if (cardState.cardCVVError != null){
+                        Text(
+                            text = cardState.cardCVVError,
+                            fontSize = 10.sp
+                        )
+                    }
+                    else {
+                        Text(text = stringResource(R.string.cvc))
+                    }
                 },
-
                 placeholder = {
                     Text(text = stringResource(R.string.cvc))
                 },
+                isError = cardState.cardCVVError != null,
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        controller?.hide()
+                    }
                 )
             )
         }
 
-        OutlinedTextField(
-            value = cardName,
-            onValueChange = { cardName = it
-            },
-            label = { Text(text = stringResource(R.string.card_name)) },
-
-            placeholder = {
-                Text(text = stringResource(R.string.card_name))
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    controller?.hide()
-                }
-            )
-        )
-
         Button(
             onClick = {
-                // make payment here
+                viewModel.onEvent(CardEvent.Submit(plan))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -167,55 +194,5 @@ fun DebitCardComposable(plan: SubscriptionPlan){
             Text(text = stringResource(id = R.string.pay))
         }
 
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CreditCardDialog(
-    plan: SubscriptionPlan,
-    onDismissRequest: () -> Unit
-){
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        OutlinedCard(
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(8.dp),
-        ) {
-            DebitCardComposable(plan = plan)
-        }
-    }
-}
-
-private fun formatText(input: String): String {
-    var formattedText = input
-
-    // Remove any non-digit characters
-    formattedText = formattedText.replace(Regex("\\D"), "")
-
-    // Add the "/" separator after the 2nd character
-    if (formattedText.length > 2) {
-        formattedText = formattedText.insert(2, "/")
-    }
-
-    return formattedText
-}
-
-private fun String.insert(index: Int, other: String): String {
-    return StringBuilder(this).insert(index, other).toString()
-}
-
-
-@Composable
-@Preview(showBackground = true)
-fun CardDetailsPreview(){
-    BuildSpaceTheme {
-        CreditCardDialog(
-            plan = SubscriptionPlan(
-                name = "Monthly",
-                amount = "7000",
-                numberOfDays = 28
-            ),
-            onDismissRequest = {}
-        )
     }
 }
