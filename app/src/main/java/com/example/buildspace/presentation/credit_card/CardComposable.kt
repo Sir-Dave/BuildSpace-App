@@ -6,8 +6,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,12 +24,15 @@ import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CardDetails(plan: SubscriptionPlan){
+fun DebitCardComposable(plan: SubscriptionPlan){
     var cardNumber by remember{ mutableStateOf("") }
     var expiryDate by remember{ mutableStateOf("") }
     var cvc by remember{ mutableStateOf("") }
     var cardName by remember{ mutableStateOf("") }
+
+    val controller = LocalSoftwareKeyboardController.current
 
     Column{
         Text(
@@ -44,7 +49,7 @@ fun CardDetails(plan: SubscriptionPlan){
             textAlign = TextAlign.Center
         )
         Text(
-            text = "You are about to make payment for ${plan.name} at #${plan.amount}",
+            text = "You are about to make payment for ${plan.name.lowercase()} at #${plan.amount}",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -72,12 +77,8 @@ fun CardDetails(plan: SubscriptionPlan){
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                }
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
             )
         )
 
@@ -88,7 +89,9 @@ fun CardDetails(plan: SubscriptionPlan){
         ) {
             OutlinedTextField(
                 value = expiryDate,
-                onValueChange = { expiryDate = it
+                onValueChange = {
+                    val formattedText = formatText(it)
+                    expiryDate = formattedText
                 },
                 label = {
                     Text(text = stringResource(R.string.expiry_date))
@@ -99,12 +102,8 @@ fun CardDetails(plan: SubscriptionPlan){
                 },
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                    }
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
                 )
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -122,12 +121,8 @@ fun CardDetails(plan: SubscriptionPlan){
                 },
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                    }
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
                 )
             )
         }
@@ -145,17 +140,20 @@ fun CardDetails(plan: SubscriptionPlan){
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
+                    controller?.hide()
                 }
             )
         )
 
         Button(
-            onClick = {},
+            onClick = {
+                // make payment here
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -174,33 +172,50 @@ fun CardDetails(plan: SubscriptionPlan){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDialog(
-    plan: SubscriptionPlan
+fun CreditCardDialog(
+    plan: SubscriptionPlan,
+    onDismissRequest: () -> Unit
 ){
-    Dialog(onDismissRequest = { /*TODO*/ }) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
         OutlinedCard(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.padding(8.dp),
-//            colors = CardDefaults.cardColors(
-//                contentColor = Color(0xFFBE9870)
-//            )
         ) {
-            CardDetails(plan = plan)
+            DebitCardComposable(plan = plan)
         }
-        
     }
 }
+
+private fun formatText(input: String): String {
+    var formattedText = input
+
+    // Remove any non-digit characters
+    formattedText = formattedText.replace(Regex("\\D"), "")
+
+    // Add the "/" separator after the 2nd character
+    if (formattedText.length > 2) {
+        formattedText = formattedText.insert(2, "/")
+    }
+
+    return formattedText
+}
+
+private fun String.insert(index: Int, other: String): String {
+    return StringBuilder(this).insert(index, other).toString()
+}
+
 
 @Composable
 @Preview(showBackground = true)
 fun CardDetailsPreview(){
     BuildSpaceTheme {
-        MyDialog(
+        CreditCardDialog(
             plan = SubscriptionPlan(
                 name = "Monthly",
                 amount = "7000",
                 numberOfDays = 28
-            )
+            ),
+            onDismissRequest = {}
         )
     }
 }
