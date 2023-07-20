@@ -39,8 +39,9 @@ fun CreditCardDialog(
             modifier = Modifier.padding(8.dp),
         ) {
             DebitCardComposable(
-                viewModel,
-                plan = plan
+                viewModel = viewModel,
+                plan = plan,
+                onDismissRequest = onDismissRequest
             )
         }
     }
@@ -50,7 +51,8 @@ fun CreditCardDialog(
 @Composable
 fun DebitCardComposable(
     viewModel: SubscriptionViewModel,
-    plan: SubscriptionPlan
+    plan: SubscriptionPlan,
+    onDismissRequest: () -> Unit
 ){
     val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
@@ -238,6 +240,7 @@ fun DebitCardComposable(
         Button(
             onClick = {
                 viewModel.onEvent(CardEvent.Submit(plan))
+                onDismissRequest()
             },
             modifier = Modifier
                 .fillMaxWidth()
