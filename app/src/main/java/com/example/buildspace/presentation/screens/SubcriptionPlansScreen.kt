@@ -1,5 +1,6 @@
 package com.example.buildspace.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
+import com.example.buildspace.presentation.PaymentEvent
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.credit_card.CreditCardDialog
@@ -37,6 +40,27 @@ fun SubscriptionPlans(
     }
 
     var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = context){
+        viewModel.paymentEvent.collect{ event ->
+            when (event){
+                is PaymentEvent.Success ->{
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT).show()
+                }
+
+                is PaymentEvent.Failure -> {
+                    Toast.makeText(
+                        context,
+                        event.errorMessage,
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()

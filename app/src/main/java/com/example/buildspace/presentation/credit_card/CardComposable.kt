@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -54,9 +55,9 @@ fun DebitCardComposable(
     val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
 
-    val expirationDateFocusRequester = FocusRequester()
-    val cvvFocusRequester = FocusRequester()
-    val pinFocusRequester = FocusRequester()
+    val expirationDateFocusRequester = remember{ FocusRequester() }
+    val cvvFocusRequester = remember{ FocusRequester() }
+    val pinFocusRequester = remember{ FocusRequester() }
 
     Column{
         Text(
@@ -90,10 +91,6 @@ fun DebitCardComposable(
             value = cardState.cardNumber,
             onValueChange = {
                 viewModel.onEvent(CardEvent.CardNumberChanged(it))
-
-                if (cardState.cardNumber.length == 16) {
-                    expirationDateFocusRequester.requestFocus()
-                }
             },
             label = {
                 if (cardState.cardNumberError != null){
@@ -135,7 +132,7 @@ fun DebitCardComposable(
                 onValueChange = {
                     viewModel.onEvent(CardEvent.CardExpiryDateChanged(it))
 
-                    if (cardState.cardExpiryDate.length == 7) {
+                    if (cardState.cardExpiryDate.length == 5) {
                         cvvFocusRequester.requestFocus()
                     }
                 },
@@ -154,7 +151,7 @@ fun DebitCardComposable(
                     Text(text = stringResource(R.string.expiry_date))
                 },
                 isError = cardState.cardExpiryDateError != null,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).focusRequester(expirationDateFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -191,7 +188,7 @@ fun DebitCardComposable(
                     Text(text = stringResource(R.string.cvc))
                 },
                 isError = cardState.cardCVVError != null,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).focusRequester(cvvFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -226,7 +223,9 @@ fun DebitCardComposable(
             isError = cardState.cardPinError != null,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp),
+                .padding(start = 8.dp, end = 8.dp)
+                .focusRequester(pinFocusRequester)
+            ,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done

@@ -19,8 +19,8 @@
     <string name="signup_subtitle">Quality workspace, home away from home</string>
 
     <string name="card_number">Card Number</string>
-    <string name="expiry_date">MM/YYYY</string>
-    <string name="cvc">CVC</string>
+    <string name="expiry_date">MM/YY</string>
+    <string name="cvc">CVV</string>
     <string name="card_pin">Pin</string>
     <string name="pay">Pay</string>
 
