@@ -38,8 +38,6 @@ class SubscriptionViewModel @Inject constructor(
 
     var cardDetailsState by mutableStateOf(CardDetailsState())
 
-    private var paymentState by mutableStateOf(PaymentState())
-
     init {
         viewModelScope.launch {
 
@@ -169,7 +167,6 @@ class SubscriptionViewModel @Inject constructor(
             }
         }
     }
-
     private fun handleData(plan: SubscriptionPlan){
         val cardNumberResult = validateField.execute(cardDetailsState.cardNumber)
         val cardExpiryDateResult = validateField.execute(cardDetailsState.cardExpiryDate)
@@ -210,6 +207,7 @@ class SubscriptionViewModel @Inject constructor(
     private fun createSubscription(email: String, amount: Double, cardCvv: String,
                                    cardNumber: String, cardExpiryMonth: String,
                                    cardExpiryYear: String, pin: String, type: String){
+        _subscriptionState.value = _subscriptionState.value.copy(isPaymentLoading = true)
         viewModelScope.launch {
             repository.createSubscription(
                 email = email,
@@ -224,23 +222,23 @@ class SubscriptionViewModel @Inject constructor(
                 withContext(Dispatchers.Main){
                     when (val result = it){
                         is Resource.Success ->{
-                            paymentState = paymentState.copy(
-                                isLoading = false,
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isPaymentLoading = false,
                                 error = null,
                                 message = it.data?.data?.status
                             )
                             paymentEventChannel.send(
-                                PaymentEvent.Success(paymentState.message)
+                                PaymentEvent.Success(_subscriptionState.value.message)
                             )
                         }
 
                         is Resource.Error ->{
-                            paymentState = paymentState.copy(
-                                isLoading = false,
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isPaymentLoading = false,
                                 error = result.message
                             )
                             paymentEventChannel.send(
-                                PaymentEvent.Failure(paymentState.error)
+                                PaymentEvent.Failure(_subscriptionState.value.error)
                             )
                         }
                         else -> Unit

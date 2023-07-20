@@ -157,6 +157,22 @@ fun SubscriptionPlans(
                 Text(text = stringResource(id = R.string.special_offers).uppercase())
             }
         }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (state.isPaymentLoading) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Processing payment, please wait...")
+                }
+            }
+        }
     }
 }
 
