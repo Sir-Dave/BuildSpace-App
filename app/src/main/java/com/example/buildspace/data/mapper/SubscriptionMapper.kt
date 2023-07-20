@@ -45,9 +45,11 @@ fun SubscriptionHistoryDto.toSubscriptionHistory(): SubscriptionHistory {
 
     val statusType = getEnumName<Status>(status)
 
+    val formattedAmount = amount/100.0
+
     return SubscriptionHistory(
         id = id,
-        amount = String.format("%.2f", amount),
+        amount = String.format("%.2f", formattedAmount),
         reference = reference,
         date = formattedDate,
         status = status,
