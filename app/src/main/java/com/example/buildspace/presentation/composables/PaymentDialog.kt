@@ -13,12 +13,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.ui.theme.BuildSpaceTheme
+import com.example.buildspace.presentation.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +26,7 @@ fun PaymentDialog(
     isSuccess: Boolean,
     text: String,
     onDismissRequest: () -> Unit,
+    navHostController: NavHostController,
 ){
     Dialog(onDismissRequest = { onDismissRequest() }) {
         OutlinedCard(
@@ -59,6 +60,9 @@ fun PaymentDialog(
 
                 Button(
                     onClick = {
+                        if (isSuccess){
+                            navHostController.navigate(Screen.DashboardScreen.route)
+                        }
                         onDismissRequest()
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -74,17 +78,5 @@ fun PaymentDialog(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PaymentDialogPreview(){
-    BuildSpaceTheme{
-        PaymentDialog(
-            isSuccess = true,
-            text = "Congratulations",
-            onDismissRequest = {}
-        )
     }
 }

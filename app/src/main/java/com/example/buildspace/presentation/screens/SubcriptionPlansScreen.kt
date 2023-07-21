@@ -1,6 +1,5 @@
 package com.example.buildspace.presentation.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,58 +8,54 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
-import com.example.buildspace.presentation.PaymentEvent
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
+import com.example.buildspace.presentation.composables.PaymentDialog
 import com.example.buildspace.presentation.credit_card.CreditCardDialog
-import com.example.buildspace.ui.theme.BuildSpaceTheme
+import com.example.buildspace.presentation.credit_card.OTPDialog
 import com.example.buildspace.ui.theme.LightBackground
 
 @Composable
 fun SubscriptionPlans(
-    viewModel: SubscriptionViewModel = hiltViewModel()
+    viewModel: SubscriptionViewModel = hiltViewModel(),
+    navHostController: NavHostController,
 ){
     val state by viewModel.subscriptionState.collectAsState()
     val subscriptionPlans = state.subscriptionPlans
     val user = viewModel.user
 
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
+    var showDialog by remember { mutableStateOf(false) }
+    var showOtpDialog by remember { mutableStateOf(false) }
+    var showPaymentDialog by remember { mutableStateOf(false) }
+
+    val paymentState = viewModel.paymentState
 
     var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
 
-    val context = LocalContext.current
+    /*val context = LocalContext.current
     LaunchedEffect(key1 = context){
         viewModel.paymentEvent.collect{ event ->
             when (event){
-                is PaymentEvent.Success ->{
-                    Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT).show()
-                }
-
                 is PaymentEvent.Failure -> {
                     Toast.makeText(
                         context,
                         event.errorMessage,
                         Toast.LENGTH_SHORT).show()
                 }
+                else -> Unit
             }
         }
-    }
+    }*/
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -89,6 +84,20 @@ fun SubscriptionPlans(
             CreditCardDialog(
                 plan = selectedPlan!!,
                 onDismissRequest = { showDialog = false }
+            )
+        }
+
+        if (showOtpDialog){
+            OTPDialog(onDismissRequest = { showOtpDialog = false })
+        }
+
+        if (showPaymentDialog){
+            val isSuccess = paymentState.error == null
+            PaymentDialog(
+                isSuccess = isSuccess,
+                text = if (isSuccess) "Payment successful" else  paymentState.error!!,
+                onDismissRequest = { showPaymentDialog = false },
+                navHostController = navHostController
             )
         }
 
@@ -162,7 +171,7 @@ fun SubscriptionPlans(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            if (state.isPaymentLoading) {
+            if (paymentState.isPaymentLoading) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -172,6 +181,17 @@ fun SubscriptionPlans(
                     Text(text = "Processing payment, please wait...")
                 }
             }
+        }
+
+        if (paymentState.message != null){
+            if (paymentState.message == "send_otp")
+                showOtpDialog = true
+
+            else showPaymentDialog = true
+        }
+
+        if (paymentState.error != null){
+            showPaymentDialog = true
         }
     }
 }
@@ -234,14 +254,5 @@ fun PlanCard(
                 Text(text = "$pay #${plan.amount}")
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun SubscriptionPlansPreview(){
-    BuildSpaceTheme{
-        SubscriptionPlans()
     }
 }

@@ -37,7 +37,7 @@ fun Navigation(navHostController: NavHostController){
             }
 
             composable(Screen.SubscriptionPlanScreen.route){
-                SubscriptionPlans()
+                SubscriptionPlans(navHostController = navHostController)
             }
 
             composable(Screen.SubscriptionHistoryScreen.route){

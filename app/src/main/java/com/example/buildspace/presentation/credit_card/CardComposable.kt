@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -25,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.presentation.SubscriptionViewModel
+import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +45,92 @@ fun CreditCardDialog(
                 plan = plan,
                 onDismissRequest = onDismissRequest
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun OTPDialog(
+    onDismissRequest: () -> Unit,
+    viewModel: SubscriptionViewModel = hiltViewModel()
+){
+    val cardState = viewModel.cardDetailsState
+    val controller = LocalSoftwareKeyboardController.current
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        OutlinedCard(
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.padding(8.dp),
+        ) {
+
+            Column{
+                Text(
+                    text = "Please enter the OTP sent to your phone number.",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF000000),
+                        letterSpacing = 0.15.sp,
+                    )
+                )
+
+                OutlinedTextField(
+                    value = cardState.cardOTP,
+                    onValueChange = {
+                        viewModel.onEvent(CardEvent.CardOTPChanged(it))
+                    },
+                    label = {
+                        if (cardState.cardOTPError != null) {
+                            Text(
+                                text = cardState.cardOTPError,
+                                fontSize = 11.sp
+                            )
+                        } else {
+                            Text(text = stringResource(R.string.otp))
+                        }
+                    },
+                    placeholder = {
+                        Text(text = stringResource(R.string.otp))
+                    },
+                    isError = cardState.cardOTPError != null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            controller?.hide()
+                        }
+                    )
+                )
+
+                Button(
+                    onClick = {
+                        viewModel.onEvent(CardEvent.SendOTP)
+                        onDismissRequest()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+
+                    ) {
+                    Text(text = stringResource(id = R.string.send))
+                }
+            }
         }
     }
 }
@@ -153,7 +241,9 @@ fun DebitCardComposable(
                     Text(text = stringResource(R.string.expiry_date))
                 },
                 isError = cardState.cardExpiryDateError != null,
-                modifier = Modifier.weight(1f).focusRequester(expirationDateFocusRequester),
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(expirationDateFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -190,7 +280,9 @@ fun DebitCardComposable(
                     Text(text = stringResource(R.string.cvc))
                 },
                 isError = cardState.cardCVVError != null,
-                modifier = Modifier.weight(1f).focusRequester(cvvFocusRequester),
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(cvvFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -255,5 +347,13 @@ fun DebitCardComposable(
             Text(text = stringResource(id = R.string.pay))
         }
 
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OTPDialogPreview(){
+    BuildSpaceTheme{
+        OTPDialog(onDismissRequest = {})
     }
 }

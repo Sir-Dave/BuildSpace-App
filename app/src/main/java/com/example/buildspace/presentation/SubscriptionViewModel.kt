@@ -38,6 +38,8 @@ class SubscriptionViewModel @Inject constructor(
 
     var cardDetailsState by mutableStateOf(CardDetailsState())
 
+    var paymentState by mutableStateOf(PaymentState())
+
     init {
         viewModelScope.launch {
 
@@ -162,11 +164,20 @@ class SubscriptionViewModel @Inject constructor(
                 cardDetailsState = cardDetailsState.copy(cardPin = formattedPin)
             }
 
+            is CardEvent.CardOTPChanged -> {
+                cardDetailsState = cardDetailsState.copy(cardOTP = event.otp)
+            }
+
             is CardEvent.Submit -> {
                 handleData(event.plan)
             }
+
+            is CardEvent.SendOTP ->{
+                submitOTP()
+            }
         }
     }
+
     private fun handleData(plan: SubscriptionPlan){
         val cardNumberResult = validateField.execute(cardDetailsState.cardNumber)
         val cardExpiryDateResult = validateField.execute(cardDetailsState.cardExpiryDate)
@@ -207,7 +218,7 @@ class SubscriptionViewModel @Inject constructor(
     private fun createSubscription(email: String, amount: Double, cardCvv: String,
                                    cardNumber: String, cardExpiryMonth: String,
                                    cardExpiryYear: String, pin: String, type: String){
-        _subscriptionState.value = _subscriptionState.value.copy(isPaymentLoading = true)
+        paymentState = paymentState.copy(isPaymentLoading = true)
         viewModelScope.launch {
             repository.createSubscription(
                 email = email,
@@ -222,23 +233,68 @@ class SubscriptionViewModel @Inject constructor(
                 withContext(Dispatchers.Main){
                     when (val result = it){
                         is Resource.Success ->{
-                            _subscriptionState.value = _subscriptionState.value.copy(
+                            paymentState = paymentState.copy(
+                                isPaymentLoading = false,
+                                error = null,
+                                message = it.data?.data?.status,
+                                reference = it.data?.data?.reference
+                            )
+                            paymentEventChannel.send(
+                                PaymentEvent.Success(paymentState.message)
+                            )
+                        }
+
+                        is Resource.Error ->{
+                            paymentState = paymentState.copy(
+                                isPaymentLoading = false,
+                                error = result.message
+                            )
+                            paymentEventChannel.send(
+                                PaymentEvent.Failure(paymentState.error)
+                            )
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+    private fun submitOTP() {
+        val cardOTPResult = validateField.execute(cardDetailsState.cardOTP)
+        val hasError = !cardOTPResult.isSuccessful
+        if (hasError){
+            cardDetailsState = cardDetailsState.copy(
+                cardOTPError = cardOTPResult.errorMessage
+            )
+            return
+        }
+
+        paymentState = paymentState.copy(isPaymentLoading = true)
+        viewModelScope.launch {
+            repository.sendOTP(
+                otp = cardDetailsState.cardOTP,
+                reference = paymentState.reference ?: ""
+            ).collect{
+                withContext(Dispatchers.Main){
+                    when (val result = it){
+                        is Resource.Success ->{
+                            paymentState = paymentState.copy(
                                 isPaymentLoading = false,
                                 error = null,
                                 message = it.data?.data?.status
                             )
                             paymentEventChannel.send(
-                                PaymentEvent.Success(_subscriptionState.value.message)
+                                PaymentEvent.Success(paymentState.message)
                             )
                         }
 
                         is Resource.Error ->{
-                            _subscriptionState.value = _subscriptionState.value.copy(
+                            paymentState = paymentState.copy(
                                 isPaymentLoading = false,
                                 error = result.message
                             )
                             paymentEventChannel.send(
-                                PaymentEvent.Failure(_subscriptionState.value.error)
+                                PaymentEvent.Failure(paymentState.error)
                             )
                         }
                         else -> Unit

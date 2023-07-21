@@ -8,5 +8,7 @@ data class CardDetailsState(
     val cardCVV: String = "",
     val cardCVVError: String? = null,
     val cardPin: String = "",
-    val cardPinError: String? = null
+    val cardPinError: String? = null,
+    val cardOTP: String = "",
+    val cardOTPError: String? = null
 )
