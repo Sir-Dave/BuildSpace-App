@@ -61,7 +61,11 @@ fun PaymentDialog(
                 Button(
                     onClick = {
                         if (isSuccess){
-                            navHostController.navigate(Screen.DashboardScreen.route)
+                            navHostController.navigate(Screen.DashboardScreen.route) {
+                                popUpTo(Screen.AuthScreen.route) {
+                                    inclusive = true
+                                }
+                            }
                         }
                         onDismissRequest()
                     },

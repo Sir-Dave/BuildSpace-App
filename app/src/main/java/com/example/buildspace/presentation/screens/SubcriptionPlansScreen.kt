@@ -42,21 +42,6 @@ fun SubscriptionPlans(
 
     var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
 
-    /*val context = LocalContext.current
-    LaunchedEffect(key1 = context){
-        viewModel.paymentEvent.collect{ event ->
-            when (event){
-                is PaymentEvent.Failure -> {
-                    Toast.makeText(
-                        context,
-                        event.errorMessage,
-                        Toast.LENGTH_SHORT).show()
-                }
-                else -> Unit
-            }
-        }
-    }*/
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -184,14 +169,22 @@ fun SubscriptionPlans(
         }
 
         if (paymentState.message != null){
-            if (paymentState.message == "send_otp")
-                showOtpDialog = true
+            LaunchedEffect(paymentState.message) {
+                if (paymentState.message == "send_otp")
+                    showOtpDialog = true
 
-            else showPaymentDialog = true
+                else showPaymentDialog = true
+
+                viewModel.paymentState = viewModel.paymentState.copy(message = null)
+            }
         }
 
         if (paymentState.error != null){
-            showPaymentDialog = true
+            LaunchedEffect(paymentState.error) {
+                showPaymentDialog = true
+
+                viewModel.paymentState = viewModel.paymentState.copy(error = null)
+            }
         }
     }
 }

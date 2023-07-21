@@ -17,11 +17,9 @@ import com.example.buildspace.presentation.credit_card.*
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -141,9 +139,6 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
-    private val paymentEventChannel = Channel<PaymentEvent>()
-    val paymentEvent = paymentEventChannel.receiveAsFlow()
-
     fun onEvent(event: CardEvent){
         when (event){
             is CardEvent.CardNumberChanged -> {
@@ -239,18 +234,12 @@ class SubscriptionViewModel @Inject constructor(
                                 message = it.data?.data?.status,
                                 reference = it.data?.data?.reference
                             )
-                            paymentEventChannel.send(
-                                PaymentEvent.Success(paymentState.message)
-                            )
                         }
 
                         is Resource.Error ->{
                             paymentState = paymentState.copy(
                                 isPaymentLoading = false,
                                 error = result.message
-                            )
-                            paymentEventChannel.send(
-                                PaymentEvent.Failure(paymentState.error)
                             )
                         }
                         else -> Unit
@@ -283,18 +272,12 @@ class SubscriptionViewModel @Inject constructor(
                                 error = null,
                                 message = it.data?.data?.status
                             )
-                            paymentEventChannel.send(
-                                PaymentEvent.Success(paymentState.message)
-                            )
                         }
 
                         is Resource.Error ->{
                             paymentState = paymentState.copy(
                                 isPaymentLoading = false,
                                 error = result.message
-                            )
-                            paymentEventChannel.send(
-                                PaymentEvent.Failure(paymentState.error)
                             )
                         }
                         else -> Unit
@@ -303,9 +286,4 @@ class SubscriptionViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed class PaymentEvent{
-    data class Success(val message: String? = null): PaymentEvent()
-    data class Failure(val errorMessage: String?): PaymentEvent()
 }
