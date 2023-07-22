@@ -50,6 +50,10 @@ class SignInViewModel @Inject constructor(
                 signInFormState = signInFormState.copy( password = event.password)
             }
 
+            is SignInFormEvent.RememberMeChanged -> {
+                signInFormState = signInFormState.copy(isRememberUser = event.isChecked)
+            }
+
             is SignInFormEvent.Submit -> {
                 submitData()
             }
@@ -97,6 +101,11 @@ class SignInViewModel @Inject constructor(
                             )
                             saveToken(_authState.value.token!!)
                             saveUser(_authState.value.user!!)
+
+                            if (signInFormState.isRememberUser) {
+                                saveUserLoginState()
+                            }
+
                             signInEventChannel.send(SignInEvent.Success)
                         }
 
@@ -127,6 +136,12 @@ class SignInViewModel @Inject constructor(
     private fun saveUser(user: User){
         viewModelScope.launch(Dispatchers.IO){
             authManager.saveUser(user)
+        }
+    }
+
+    private fun saveUserLoginState(){
+        viewModelScope.launch {
+            authManager.saveUserLoginState()
         }
     }
 

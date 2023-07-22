@@ -35,6 +35,7 @@ fun SignIn(
     val state by viewModel.authState.collectAsState()
     val loginState = viewModel.signInFormState
     val context = LocalContext.current
+
     LaunchedEffect(key1 = context){
         viewModel.validationEvent.collect{ event ->
             when (event){
@@ -166,6 +167,23 @@ fun SignIn(
             )
         ) {
             Text(text = stringResource(id = R.string.sign_in_with_google))
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Switch(
+                checked = loginState.isRememberUser,
+                onCheckedChange = {
+                    viewModel.onEvent(SignInFormEvent.RememberMeChanged(it))
+                },
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(stringResource(id = R.string.remember_user))
         }
         
         Spacer(modifier = Modifier.height(16.dp))
