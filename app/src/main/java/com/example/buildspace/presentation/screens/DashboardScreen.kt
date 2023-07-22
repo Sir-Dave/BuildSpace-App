@@ -20,10 +20,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
+import com.example.buildspace.domain.model.Subscription
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +72,10 @@ fun Dashboard(
         }
 
         else {
+            val pairOfNumDays = getNumDaysUsed(currentSubscription)
+            val daysUsed = pairOfNumDays.first
+            val daysAllowable = pairOfNumDays.second
+
             Column(
                 modifier = Modifier
                     .padding(8.dp)
@@ -76,7 +84,7 @@ fun Dashboard(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "02/28",
+                    text = "$daysUsed/$daysAllowable",
                     style = MaterialTheme.typography.displayLarge,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -197,6 +205,29 @@ fun UserNotSubscribed(
 
 }
 
+private fun getNumDaysUsed(subscription: Subscription): Pair<String, String>{
+    val numDays = when (subscription.type.lowercase()){
+        "daily" -> 1
+        "weekly" -> 7
+        else -> 28
+    }
+    val duration = differenceInDaysFromToday(subscription.startDate)
+    val daysUsed = formatNumberWithLeadingZeros(duration)
+    val daysAllowable = formatNumberWithLeadingZeros(numDays)
+    return Pair(daysUsed, daysAllowable)
+}
+
+private fun differenceInDaysFromToday(formattedDate: String): Int {
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val parsedDate = LocalDate.parse(formattedDate, formatter)
+    val today = LocalDate.now()
+
+    return ChronoUnit.DAYS.between(today, parsedDate).toInt()
+}
+
+private fun formatNumberWithLeadingZeros(number: Int, digits: Int = 2): String {
+    return number.toString().padStart(digits, '0')
+}
 
 @Preview(showBackground = true)
 @Composable
