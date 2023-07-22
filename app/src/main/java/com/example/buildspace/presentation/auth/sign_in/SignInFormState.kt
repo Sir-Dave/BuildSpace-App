@@ -4,5 +4,6 @@ data class SignInFormState(
     val email: String = "",
     val emailError: String? = null,
     val password: String = "",
-    val passwordError: String? = null
+    val passwordError: String? = null,
+    val isRememberUser: Boolean = false
 )

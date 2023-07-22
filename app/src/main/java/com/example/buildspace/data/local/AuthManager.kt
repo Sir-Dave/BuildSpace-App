@@ -1,6 +1,7 @@
 package com.example.buildspace.data.local
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.buildspace.di.dataStore
@@ -13,6 +14,7 @@ class AuthManager(private val context: Context) {
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val USER_KEY = stringPreferencesKey("user")
+        private val IS_REMEMBER_USER = booleanPreferencesKey("is_remember_user")
     }
 
     fun getToken(): Flow<String?> {
@@ -52,6 +54,24 @@ class AuthManager(private val context: Context) {
     suspend fun deleteUser() {
         context.dataStore.edit { preferences ->
             preferences.remove(USER_KEY)
+        }
+    }
+
+    fun getUserLoginState(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            preferences[IS_REMEMBER_USER] ?: false
+        }
+    }
+
+    suspend fun saveUserLoginState(){
+        context.dataStore.edit { preferences ->
+            preferences[IS_REMEMBER_USER] = true
+        }
+    }
+
+    suspend fun clearUserLoginStat(){
+        context.dataStore.edit { preferences ->
+            preferences.remove(IS_REMEMBER_USER)
         }
     }
 }
