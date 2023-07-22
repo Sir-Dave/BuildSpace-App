@@ -18,15 +18,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.domain.model.BottomNavItem
+import com.example.buildspace.presentation.auth.MainViewModel
 import com.example.buildspace.presentation.navigation.Navigation
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -34,6 +38,16 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        var isRememberUser = mainViewModel.isRememberUser.value
+
+        lifecycleScope.launch {
+            mainViewModel.isRememberUser.collect { value ->
+                isRememberUser = value
+            }
+        }
+
         setContent {
             BuildSpaceTheme {
                 val navController = rememberNavController()
@@ -77,7 +91,10 @@ class MainActivity : ComponentActivity() {
                             )
                     }
                 ) {
-                    Navigation(navHostController = navController)
+                    Navigation(
+                        navHostController = navController,
+                        isRememberUser = isRememberUser
+                    )
                 }
             }
         }

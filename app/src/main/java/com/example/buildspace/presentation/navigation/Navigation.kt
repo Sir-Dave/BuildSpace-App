@@ -12,12 +12,16 @@ import com.example.buildspace.presentation.screens.SubscriptionHistory
 import com.example.buildspace.presentation.screens.SubscriptionPlans
 
 @Composable
-fun Navigation(navHostController: NavHostController){
+fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
 
-    NavHost(navController = navHostController, startDestination = Screen.AuthScreen.route){
+    NavHost(
+        navController = navHostController,
+        startDestination = if (isRememberUser) Screen.HomeScreen.route
+        else Screen.AuthScreen.route){
+
         navigation(
+            route =  Screen.AuthScreen.route,
             startDestination = Screen.SignInScreen.route,
-            route =  Screen.AuthScreen.route
         ){
             composable(Screen.SignInScreen.route){
                 SignIn(navHostController)
@@ -29,8 +33,8 @@ fun Navigation(navHostController: NavHostController){
         }
 
         navigation(
-            startDestination = Screen.DashboardScreen.route,
-            route = Screen.HomeScreen.route
+            route = Screen.HomeScreen.route,
+            startDestination = Screen.DashboardScreen.route
         ){
             composable(Screen.DashboardScreen.route){
                 Dashboard(navHostController = navHostController)
