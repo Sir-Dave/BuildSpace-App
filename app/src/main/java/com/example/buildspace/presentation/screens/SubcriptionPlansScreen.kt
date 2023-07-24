@@ -73,7 +73,12 @@ fun SubscriptionPlans(
         }
 
         if (showOtpDialog){
-            OTPDialog(onDismissRequest = { showOtpDialog = false })
+            OTPDialog(
+                onDismissRequest = {
+                    showOtpDialog = false
+                    viewModel.paymentState = viewModel.paymentState.copy(message = null)
+                }
+            )
         }
 
         if (showPaymentDialog){
@@ -81,7 +86,16 @@ fun SubscriptionPlans(
             PaymentDialog(
                 isSuccess = isSuccess,
                 text = if (isSuccess) "Payment successful" else  paymentState.error!!,
-                onDismissRequest = { showPaymentDialog = false },
+                onDismissRequest = {
+                    showPaymentDialog = false
+                    if (isSuccess){
+                        viewModel.paymentState = viewModel.paymentState.copy(message = null)
+                    }
+                    else{
+                        viewModel.paymentState = viewModel.paymentState.copy(error = null)
+                    }
+                },
+
                 navHostController = navHostController
             )
         }
@@ -169,22 +183,14 @@ fun SubscriptionPlans(
         }
 
         if (paymentState.message != null){
-            LaunchedEffect(paymentState.message) {
-                if (paymentState.message == "send_otp")
-                    showOtpDialog = true
+            if (paymentState.message == "send_otp")
+                showOtpDialog = true
 
-                else showPaymentDialog = true
-
-                viewModel.paymentState = viewModel.paymentState.copy(message = null)
-            }
+            else showPaymentDialog = true
         }
 
-        if (paymentState.error != null){
-            LaunchedEffect(paymentState.error) {
-                showPaymentDialog = true
-
-                viewModel.paymentState = viewModel.paymentState.copy(error = null)
-            }
+        if (paymentState.error != null) {
+            showPaymentDialog = true
         }
     }
 }

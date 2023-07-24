@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -55,7 +56,10 @@ fun PaymentDialog(
                         fontWeight = FontWeight(500),
                         color = Color(0xFF000000),
                         letterSpacing = 0.15.sp,
-                    )
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    maxLines = 2
                 )
 
                 Button(
