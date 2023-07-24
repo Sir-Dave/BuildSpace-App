@@ -1,10 +1,13 @@
 package com.example.buildspace.di
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
 import com.example.buildspace.data.local.AuthManager
+import com.example.buildspace.data.local.BuildSpaceDatabase
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.AuthInterceptor
 import com.example.buildspace.domain.use_cases.ValidateEmail
@@ -78,4 +81,14 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRepeatedPasswordValidator(): ValidateRepeatedPassword = ValidateRepeatedPassword()
+
+    @Provides
+    @Singleton
+    fun provideDatabase(app: Application): BuildSpaceDatabase{
+        return Room.databaseBuilder(
+            app,
+            BuildSpaceDatabase::class.java,
+            "build_space_db"
+        ).fallbackToDestructiveMigration().build()
+    }
 }
