@@ -222,7 +222,7 @@ private fun differenceInDaysFromToday(formattedDate: String): Int {
     val parsedDate = LocalDate.parse(formattedDate, formatter)
     val today = LocalDate.now()
 
-    return ChronoUnit.DAYS.between(today, parsedDate).toInt()
+    return ChronoUnit.DAYS.between(parsedDate, today).toInt()
 }
 
 private fun formatNumberWithLeadingZeros(number: Int, digits: Int = 2): String {
