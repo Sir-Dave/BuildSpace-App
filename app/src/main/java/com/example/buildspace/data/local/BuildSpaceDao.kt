@@ -18,16 +18,16 @@ interface BuildSpaceDao {
     @Query("DELETE FROM subscriptionentity")
     suspend fun clearSubscription()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = REPLACE)
     suspend fun insertSubscriptionPlans(plans: List<SubscriptionPlanEntity>)
 
     @Query("SELECT * FROM subscriptionplanentity")
-    suspend fun getSubscriptionPlans(): List<SubscriptionPlan>
+    suspend fun getSubscriptionPlans(): List<SubscriptionPlanEntity>
 
     @Query("DELETE FROM subscriptionplanentity")
     suspend fun clearPlans()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = REPLACE)
     suspend fun insertSubscriptionHistory(history: List<SubscriptionHistoryEntity>)
 
     @Query("SELECT * FROM SubscriptionHistoryEntity")

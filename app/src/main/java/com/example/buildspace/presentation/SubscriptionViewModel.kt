@@ -1,14 +1,14 @@
 package com.example.buildspace.presentation
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buildspace.data.local.AuthManager
-import com.example.buildspace.data.mapper.toSubscription
-import com.example.buildspace.data.mapper.toSubscriptionHistory
-import com.example.buildspace.data.mapper.toSubscriptionPlan
+import com.example.buildspace.data.local.BuildSpaceDatabase
+import com.example.buildspace.data.mapper.*
 import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.SubscriptionRepository
@@ -26,8 +26,12 @@ import javax.inject.Inject
 class SubscriptionViewModel @Inject constructor(
     private val repository: SubscriptionRepository,
     private val authManager: AuthManager,
-    private val validateField: ValidateField
+    private val validateField: ValidateField,
+    db: BuildSpaceDatabase
 ): ViewModel() {
+
+    private val dao = db.dao
+    private val TAG = "SubscriptionViewModel"
 
     var user by mutableStateOf<User?>(null)
 
@@ -47,12 +51,38 @@ class SubscriptionViewModel @Inject constructor(
             }
 
             _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
+
+            val localCurrentSubscription = dao.getCurrentSubscription()
+            val localSubscriptionHistory = dao.getSubscriptionHistory()
+            val localSubscriptionPlans = dao.getSubscriptionPlans()
+
+            val currentTimeMillis = System.currentTimeMillis()
+            val cacheExpiryDurationMillis = 24 * 60 * 60 * 1000
+            val isCacheValid = localCurrentSubscription?.let {
+                (currentTimeMillis - it.timestamp) < cacheExpiryDurationMillis
+            } ?: false
+
+            if (isCacheValid) {
+                Log.d(TAG, "fetching from DB")
+                _subscriptionState.value = _subscriptionState.value.copy(
+                    isLoading = false,
+                    error = null,
+                    currentSubscription = localCurrentSubscription?.toSubscription(),
+                    subscriptionList = localSubscriptionHistory.map { history -> history.toSubscriptionHistory() },
+                    subscriptionPlans = localSubscriptionPlans.map { it.toSubscriptionPlan() }
+                )
+                return@launch
+            }
+
             user?.let {
+                Log.d(TAG, "fetching from remote")
                 val currentSubscriptionDeferred = async { repository.getUserCurrentSubscription(it.id) }
                 val subscriptionHistoryDeferred = async { repository.getUserTransactionHistory(it.email) }
+                val subscriptionPlansDeferred = async { repository.getAllSubscriptionPlans() }
 
                 val currentSubscriptionResult = currentSubscriptionDeferred.await()
                 val subscriptionHistoryResult = subscriptionHistoryDeferred.await()
+                val subscriptionPlansResult = subscriptionPlansDeferred.await()
 
                 currentSubscriptionResult.collect{
                     withContext(Dispatchers.Main){
@@ -63,6 +93,10 @@ class SubscriptionViewModel @Inject constructor(
                                     isLoading = false,
                                     error = null,
                                     currentSubscription = result.data!!.toSubscription()
+                                )
+                                dao.clearSubscription()
+                                dao.insertSubscription(
+                                    result.data.toSubscriptionEntity(System.currentTimeMillis())
                                 )
                             }
 
@@ -89,6 +123,8 @@ class SubscriptionViewModel @Inject constructor(
                                     error = null,
                                     subscriptionList = result.data!!.map { history ->  history.toSubscriptionHistory() }
                                 )
+                                dao.clearHistory()
+                                dao.insertSubscriptionHistory(result.data.map { it.toSubscriptionHistoryEntity() })
                             }
 
                             is Resource.Error -> {
@@ -102,40 +138,32 @@ class SubscriptionViewModel @Inject constructor(
                         }
                     }
                 }
-            }
+                subscriptionPlansResult.collect{
+                    withContext(Dispatchers.Main){
+                        when (val result = it) {
 
-            val subscriptionPlansDeferred = async { repository.getAllSubscriptionPlans() }
-            val subscriptionPlansResult = subscriptionPlansDeferred.await()
-            subscriptionPlansResult.collect{
-                withContext(Dispatchers.Main){
-                    when (val result = it) {
+                            is Resource.Success -> {
+                                _subscriptionState.value = _subscriptionState.value.copy(
+                                    isLoading = false,
+                                    error = null,
+                                    subscriptionPlans = result.data!!.map { it.toSubscriptionPlan() }
+                                )
+                                dao.clearPlans()
+                                dao.insertSubscriptionPlans(result.data.map { it.toSubscriptionPlanEntity() })
+                            }
 
-                        is Resource.Success -> {
-                            _subscriptionState.value = _subscriptionState.value.copy(
-                                isLoading = false,
-                                error = null,
-                                subscriptionPlans = result.data!!.map { it.toSubscriptionPlan() }
-                            )
+                            is Resource.Error -> {
+                                _subscriptionState.value = _subscriptionState.value.copy(
+                                    isLoading = false,
+                                    error = result.message,
+                                    subscriptionPlans = emptyList()
+                                )
+                            }
+                            else -> Unit
                         }
-
-                        is Resource.Error -> {
-                            _subscriptionState.value = _subscriptionState.value.copy(
-                                isLoading = false,
-                                error = result.message,
-                                subscriptionPlans = emptyList()
-                            )
-                        }
-
-                        else -> Unit
                     }
                 }
             }
-        }
-    }
-
-    private fun getSubscriptionById(id: String){
-        viewModelScope.launch {
-            repository.getSubscriptionById(id)
         }
     }
 
