@@ -10,5 +10,6 @@ data class SubscriptionEntity (
     val endDate: String,
     val type: String,
     val amount: Double,
-    val expired: Boolean
+    val expired: Boolean,
+    val timestamp: Long
 )
