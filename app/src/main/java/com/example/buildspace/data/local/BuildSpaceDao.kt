@@ -1,11 +1,13 @@
 package com.example.buildspace.data.local
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import com.example.buildspace.domain.model.SubscriptionPlan
 
+@Dao
 interface BuildSpaceDao {
     @Insert(onConflict = REPLACE)
     suspend fun insertSubscription(subscriptionEntity: SubscriptionEntity)

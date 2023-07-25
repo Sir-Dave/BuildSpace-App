@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 class SubscriptionHistoryEntity(
-    @PrimaryKey val id: String? = null,
+    @PrimaryKey val id: String,
     val amount: Double,
     val reference: String,
     val date: String,

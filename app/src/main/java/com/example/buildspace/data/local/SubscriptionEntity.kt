@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class SubscriptionEntity (
-    @PrimaryKey val id: String? = null,
+    @PrimaryKey val id: String,
     val startDate: String,
     val endDate: String,
     val type: String,
