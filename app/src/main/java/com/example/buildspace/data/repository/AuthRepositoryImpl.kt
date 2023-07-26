@@ -1,5 +1,6 @@
 package com.example.buildspace.data.repository
 
+import android.content.Context
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.dto.request.RegisterRequest
 import com.example.buildspace.data.remote.dto.request.SignInRequest
@@ -12,17 +13,18 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val api: Api
+    private val api: Api,
+    private val context: Context
 ) : AuthRepository{
 
     override suspend fun registerUser(registerRequest: RegisterRequest): Flow<Resource<ApiResponse>> {
-        return apiRequestFlow {
+        return apiRequestFlow(context) {
             api.registerUser(registerRequest)
         }
     }
 
     override suspend fun signInUser(signInRequest: SignInRequest): Flow<Resource<LoginResponse>> {
-        return apiRequestFlow {
+        return apiRequestFlow(context) {
             api.loginUser(signInRequest)
         }
     }

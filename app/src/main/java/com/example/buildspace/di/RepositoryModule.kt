@@ -1,26 +1,38 @@
 package com.example.buildspace.di
 
+import android.content.Context
+import com.example.buildspace.data.local.BuildSpaceDatabase
+import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.repository.AuthRepositoryImpl
 import com.example.buildspace.data.repository.SubscriptionRepositoryImpl
 import com.example.buildspace.domain.repository.AuthRepository
 import com.example.buildspace.domain.repository.SubscriptionRepository
-import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
+object RepositoryModule {
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
+    fun provideAuthRepository(
+        api: Api,
+        @ApplicationContext context: Context): AuthRepository{
+        return AuthRepositoryImpl(api, context)
+    }
 
-    @Binds
+    @Provides
     @Singleton
-    abstract fun bindSubscriptionRepository(
-        subscriptionRepositoryImpl: SubscriptionRepositoryImpl
-    ): SubscriptionRepository
+    fun provideSubscriptionRepository(
+        api: Api,
+        @ApplicationContext context: Context,
+        db: BuildSpaceDatabase
+    ): SubscriptionRepository{
+        return SubscriptionRepositoryImpl(api, context, db)
+    }
 }

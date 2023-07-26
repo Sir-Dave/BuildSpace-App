@@ -1,5 +1,6 @@
 package com.example.buildspace.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.example.buildspace.data.local.BuildSpaceDatabase
 import com.example.buildspace.data.mapper.*
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 class SubscriptionRepositoryImpl @Inject constructor(
     private val api: Api,
+    private val context: Context,
     db: BuildSpaceDatabase) : SubscriptionRepository{
 
     private val dao = db.dao
@@ -39,7 +41,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
 
         Log.d(TAG, "fetching history from remote server")
-        val request = apiRequestFlow { api.getTransactionHistory(email) }
+        val request = apiRequestFlow(context) { api.getTransactionHistory(email) }
         return request.map { dtoResource ->
             when (dtoResource){
                 is Resource.Success -> {
@@ -78,7 +80,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
 
         Log.d(TAG, "fetching current subscription from remote server")
-        val request = apiRequestFlow { api.getCurrentSubscription(userId) }
+        val request = apiRequestFlow(context) { api.getCurrentSubscription(userId) }
         return request.map { dtoResource ->
             when (dtoResource){
                 is Resource.Success -> {
@@ -96,7 +98,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSubscriptionById(id: String): Flow<Resource<Subscription>> {
-        val request = apiRequestFlow { api.getSubscriptionById(id) }
+        val request = apiRequestFlow(context) { api.getSubscriptionById(id) }
         return request.map { dtoResource ->
             when (dtoResource){
                 is Resource.Success -> {
@@ -122,7 +124,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
 
         Log.d(TAG, "fetching plans from remote server")
-        val request = apiRequestFlow { api.getAllSubscriptionPlans() }
+        val request = apiRequestFlow(context) { api.getAllSubscriptionPlans() }
         return request.map { dtoResource ->
             when (dtoResource){
                 is Resource.Success -> {
@@ -149,7 +151,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         pin: String,
         type: String
     ): Flow<Resource<PaymentDto>> {
-        return apiRequestFlow {
+        return apiRequestFlow(context) {
             api.makePayment(
                 email = email,
                 amount = amount,
@@ -164,7 +166,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendOTP(otp: String, reference: String): Flow<Resource<PaymentDto>> {
-        return apiRequestFlow {
+        return apiRequestFlow(context) {
             api.sendOTP(otp, reference)
         }
     }
