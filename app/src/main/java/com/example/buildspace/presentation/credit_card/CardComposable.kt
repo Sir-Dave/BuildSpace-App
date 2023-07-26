@@ -25,7 +25,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
-import com.example.buildspace.presentation.SubscriptionViewModel
+import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.subscription
 
 import com.example.buildspace.domain.model.Subscription
 import com.example.buildspace.domain.model.SubscriptionHistory

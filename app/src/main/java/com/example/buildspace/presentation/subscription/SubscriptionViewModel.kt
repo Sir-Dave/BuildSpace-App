@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.subscription
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +10,7 @@ import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.domain.use_cases.ValidateField
+import com.example.buildspace.presentation.PaymentState
 import com.example.buildspace.presentation.credit_card.*
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel

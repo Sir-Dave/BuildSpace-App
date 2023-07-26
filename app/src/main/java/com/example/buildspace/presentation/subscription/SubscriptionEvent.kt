@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.subscription
 
 sealed class SubscriptionEvent{
     object RefreshCurrentSubscription: SubscriptionEvent()

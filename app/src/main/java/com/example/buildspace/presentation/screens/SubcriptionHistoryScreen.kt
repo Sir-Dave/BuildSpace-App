@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
-import com.example.buildspace.presentation.SubscriptionViewModel
+import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.SubscriptionCard
 import com.example.buildspace.ui.theme.BuildSpaceTheme
