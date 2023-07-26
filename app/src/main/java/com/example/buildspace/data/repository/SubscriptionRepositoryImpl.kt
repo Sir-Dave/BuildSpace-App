@@ -1,40 +1,134 @@
 package com.example.buildspace.data.repository
 
+import android.util.Log
+import com.example.buildspace.data.local.BuildSpaceDatabase
+import com.example.buildspace.data.mapper.*
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.dto.response.PaymentDto
-import com.example.buildspace.data.remote.dto.response.SubscriptionDto
-import com.example.buildspace.data.remote.dto.response.SubscriptionHistoryDto
-import com.example.buildspace.data.remote.dto.response.SubscriptionPlanDto
+import com.example.buildspace.domain.model.Subscription
+import com.example.buildspace.domain.model.SubscriptionHistory
+import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.util.Resource
 import com.example.buildspace.util.apiRequestFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SubscriptionRepositoryImpl @Inject constructor(
-    private val api: Api) : SubscriptionRepository{
+    private val api: Api,
+    db: BuildSpaceDatabase) : SubscriptionRepository{
 
-    override suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistoryDto>>> {
-        return apiRequestFlow {
-            api.getTransactionHistory(email)
+    private val dao = db.dao
+    companion object{
+        const val TAG = "SubscriptionRepository"
+    }
+
+    override suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistory>>> {
+        val localSubscriptionHistory = dao.getSubscriptionHistory()
+        val shouldLoadFromCache = localSubscriptionHistory.isNotEmpty()
+
+        if (shouldLoadFromCache) {
+            Log.d(TAG, "fetching history from DB")
+            return flow {
+                emit(Resource.Success(data = localSubscriptionHistory.map { it.toSubscriptionHistory() } ))
+            }
+        }
+
+        Log.d(TAG, "fetching history from remote server")
+        val request = apiRequestFlow { api.getTransactionHistory(email) }
+        return request.map { dtoResource ->
+            when (dtoResource){
+                is Resource.Success -> {
+                    val subscriptionHistoryDto = dtoResource.data!!
+                    dao.clearHistory()
+                    dao.insertSubscriptionHistory(
+                        subscriptionHistoryDto.map { it.toSubscriptionHistoryEntity() }
+                    )
+                    Resource.Success(
+                        data = subscriptionHistoryDto.map { it.toSubscriptionHistory() }
+                    )
+                }
+                is Resource.Error -> Resource.Error(message = dtoResource.message!!, data = null)
+                else -> Resource.Loading(isLoading = false)
+            }
         }
     }
 
-    override suspend fun getUserCurrentSubscription(userId: String): Flow<Resource<SubscriptionDto>> {
-        return apiRequestFlow {
-            api.getCurrentSubscription(userId)
+    override suspend fun getUserCurrentSubscription(userId: String): Flow<Resource<Subscription>> {
+        val localCurrentSubscription = dao.getCurrentSubscription()
+        val currentTimeMillis = System.currentTimeMillis()
+        val cacheExpiryDurationMillis = 24 * 60 * 60 * 1000
+        val isCacheValid = localCurrentSubscription?.let {
+            (currentTimeMillis - it.timestamp) < cacheExpiryDurationMillis
+        } ?: false
+
+        if (isCacheValid) {
+            Log.d(TAG, "fetching current subscription from DB")
+            return flow {
+                emit(Resource.Success(data = localCurrentSubscription?.toSubscription()))
+            }
+        }
+
+        Log.d(TAG, "fetching current subscription from remote server")
+        val request = apiRequestFlow { api.getCurrentSubscription(userId) }
+        return request.map { dtoResource ->
+            when (dtoResource){
+                is Resource.Success -> {
+                    val subscriptionDto = dtoResource.data!!
+                    dao.clearSubscription()
+                    dao.insertSubscription(
+                        subscriptionDto.toSubscriptionEntity(System.currentTimeMillis())
+                    )
+                    Resource.Success(data = subscriptionDto.toSubscription())
+                }
+                is Resource.Error -> Resource.Error(message = dtoResource.message!!, data = null)
+                else -> Resource.Loading(isLoading = false)
+            }
         }
     }
 
-    override suspend fun getSubscriptionById(id: String): Flow<Resource<SubscriptionDto>> {
-        return apiRequestFlow {
-            api.getSubscriptionById(id)
+    override suspend fun getSubscriptionById(id: String): Flow<Resource<Subscription>> {
+        val request = apiRequestFlow { api.getSubscriptionById(id) }
+        return request.map { dtoResource ->
+            when (dtoResource){
+                is Resource.Success -> {
+                    val subscription = dtoResource.data!!.toSubscription()
+                    Resource.Success(data = subscription)
+                }
+                is Resource.Error -> Resource.Error(message = dtoResource.message!!, data = null)
+                else -> Resource.Loading(isLoading = false)
+            }
         }
     }
 
-    override suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlanDto>>> {
-        return apiRequestFlow {
-            api.getAllSubscriptionPlans()
+    override suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlan>>> {
+        val localSubscriptionPlans = dao.getSubscriptionPlans()
+        val shouldLoadFromCache = localSubscriptionPlans.isNotEmpty()
+
+        if (shouldLoadFromCache) {
+            Log.d(TAG, "fetching plans from DB")
+            return flow {
+                emit(Resource.Success(data = localSubscriptionPlans.map { it.toSubscriptionPlan() } ))
+            }
+        }
+
+        Log.d(TAG, "fetching plans from remote server")
+        val request = apiRequestFlow { api.getAllSubscriptionPlans() }
+        return request.map { dtoResource ->
+            when (dtoResource){
+                is Resource.Success -> {
+                    val plansDto = dtoResource.data!!
+                    dao.clearPlans()
+                    dao.insertSubscriptionPlans(plansDto.map { it.toSubscriptionPlanEntity() })
+                    Resource.Success(
+                        data = plansDto.map { it.toSubscriptionPlan() }
+                    )
+                }
+                is Resource.Error -> Resource.Error(message = dtoResource.message!!, data = null)
+                else -> Resource.Loading(isLoading = false)
+            }
         }
     }
 
