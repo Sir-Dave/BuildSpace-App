@@ -25,9 +25,11 @@ class SubscriptionRepositoryImpl @Inject constructor(
         const val TAG = "SubscriptionRepository"
     }
 
-    override suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistory>>> {
+    override suspend fun getUserTransactionHistory(email: String,
+                                                   fetchFromRemote: Boolean
+    ): Flow<Resource<List<SubscriptionHistory>>> {
         val localSubscriptionHistory = dao.getSubscriptionHistory()
-        val shouldLoadFromCache = localSubscriptionHistory.isNotEmpty()
+        val shouldLoadFromCache = localSubscriptionHistory.isNotEmpty() && !fetchFromRemote
 
         if (shouldLoadFromCache) {
             Log.d(TAG, "fetching history from DB")
@@ -56,7 +58,9 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserCurrentSubscription(userId: String): Flow<Resource<Subscription>> {
+    override suspend fun getUserCurrentSubscription(userId: String,
+                                                    fetchFromRemote: Boolean
+    ): Flow<Resource<Subscription>> {
         val localCurrentSubscription = dao.getCurrentSubscription()
         val currentTimeMillis = System.currentTimeMillis()
         val cacheExpiryDurationMillis = 24 * 60 * 60 * 1000
@@ -64,7 +68,9 @@ class SubscriptionRepositoryImpl @Inject constructor(
             (currentTimeMillis - it.timestamp) < cacheExpiryDurationMillis
         } ?: false
 
-        if (isCacheValid) {
+        val shouldLoadFromCache = isCacheValid && !fetchFromRemote
+
+        if (shouldLoadFromCache) {
             Log.d(TAG, "fetching current subscription from DB")
             return flow {
                 emit(Resource.Success(data = localCurrentSubscription?.toSubscription()))
@@ -103,9 +109,10 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlan>>> {
+    override suspend fun getAllSubscriptionPlans(fetchFromRemote: Boolean
+    ): Flow<Resource<List<SubscriptionPlan>>> {
         val localSubscriptionPlans = dao.getSubscriptionPlans()
-        val shouldLoadFromCache = localSubscriptionPlans.isNotEmpty()
+        val shouldLoadFromCache = localSubscriptionPlans.isNotEmpty() && !fetchFromRemote
 
         if (shouldLoadFromCache) {
             Log.d(TAG, "fetching plans from DB")

@@ -8,13 +8,13 @@ import com.example.buildspace.util.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface SubscriptionRepository {
-    suspend fun getUserTransactionHistory(email: String): Flow<Resource<List<SubscriptionHistory>>>
+    suspend fun getUserTransactionHistory(email: String, fetchFromRemote: Boolean): Flow<Resource<List<SubscriptionHistory>>>
 
-    suspend fun getUserCurrentSubscription(userId: String): Flow<Resource<Subscription>>
+    suspend fun getUserCurrentSubscription(userId: String, fetchFromRemote: Boolean): Flow<Resource<Subscription>>
 
     suspend fun getSubscriptionById(id: String): Flow<Resource<Subscription>>
 
-    suspend fun getAllSubscriptionPlans(): Flow<Resource<List<SubscriptionPlan>>>
+    suspend fun getAllSubscriptionPlans(fetchFromRemote: Boolean): Flow<Resource<List<SubscriptionPlan>>>
 
     suspend fun createSubscription(
         email: String,
