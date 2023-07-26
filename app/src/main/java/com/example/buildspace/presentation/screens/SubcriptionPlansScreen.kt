@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
+import com.example.buildspace.presentation.SubscriptionEvent
 import com.example.buildspace.presentation.SubscriptionViewModel
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.PaymentDialog
@@ -90,6 +91,7 @@ fun SubscriptionPlans(
                     showPaymentDialog = false
                     if (isSuccess){
                         viewModel.paymentState = viewModel.paymentState.copy(message = null)
+                        viewModel.onSubscriptionEvent(SubscriptionEvent.RefreshAll)
                     }
                     else{
                         viewModel.paymentState = viewModel.paymentState.copy(error = null)

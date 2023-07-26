@@ -46,84 +46,97 @@ class SubscriptionViewModel @Inject constructor(
             _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
 
             user?.let {
-                val currentSubscriptionDeferred = async { repository.getUserCurrentSubscription(it.id) }
-                val subscriptionHistoryDeferred = async { repository.getUserTransactionHistory(it.email) }
-                val subscriptionPlansDeferred = async { repository.getAllSubscriptionPlans() }
+                getCurrentSubscription(it.id)
+                getTransactionHistory(it.email)
+                getSubscriptionPlans()
+            }
+        }
+    }
 
-                val currentSubscriptionResult = currentSubscriptionDeferred.await()
-                val subscriptionHistoryResult = subscriptionHistoryDeferred.await()
-                val subscriptionPlansResult = subscriptionPlansDeferred.await()
+    private fun getCurrentSubscription(userId: String, fetchFromRemote: Boolean = false){
+        viewModelScope.launch {
+            val currentSubscriptionResult = repository.getUserCurrentSubscription(userId, fetchFromRemote)
+            currentSubscriptionResult.collect{
+                withContext(Dispatchers.Main){
+                    when (val result = it) {
 
-                currentSubscriptionResult.collect{
-                    withContext(Dispatchers.Main){
-                        when (val result = it) {
-
-                            is Resource.Success -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = null,
-                                    currentSubscription = result.data!!
-                                )
-                            }
-
-                            is Resource.Error -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = result.message,
-                                    currentSubscription = null
-                                )
-                            }
-
-                            else -> Unit
+                        is Resource.Success -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = null,
+                                currentSubscription = result.data!!
+                            )
                         }
+
+                        is Resource.Error -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = result.message,
+                                currentSubscription = null
+                            )
+                        }
+
+                        else -> Unit
                     }
                 }
+            }
+        }
+    }
 
-                subscriptionHistoryResult.collect{
-                    withContext(Dispatchers.Main){
-                        when (val result = it) {
+    private fun getTransactionHistory(userEmail: String, fetchFromRemote: Boolean = false) {
+        viewModelScope.launch {
+            val subscriptionHistoryResult =
+                repository.getUserTransactionHistory(userEmail, fetchFromRemote)
 
-                            is Resource.Success -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = null,
-                                    subscriptionList = result.data!!
-                                )
-                            }
+            subscriptionHistoryResult.collect {
+                withContext(Dispatchers.Main) {
+                    when (val result = it) {
 
-                            is Resource.Error -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = result.message,
-                                    subscriptionList = emptyList()
-                                )
-                            }
-                            else -> Unit
+                        is Resource.Success -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = null,
+                                subscriptionList = result.data!!
+                            )
                         }
+
+                        is Resource.Error -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = result.message,
+                                subscriptionList = emptyList()
+                            )
+                        }
+                        else -> Unit
                     }
                 }
+            }
+        }
+    }
 
-                subscriptionPlansResult.collect{
-                    withContext(Dispatchers.Main){
-                        when (val result = it) {
+    private fun getSubscriptionPlans(fetchFromRemote: Boolean = false){
+        viewModelScope.launch {
+            val subscriptionPlansResult = repository.getAllSubscriptionPlans(fetchFromRemote)
+            subscriptionPlansResult.collect{
+                withContext(Dispatchers.Main){
+                    when (val result = it) {
 
-                            is Resource.Success -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = null,
-                                    subscriptionPlans = result.data!!
-                                )
-                            }
-
-                            is Resource.Error -> {
-                                _subscriptionState.value = _subscriptionState.value.copy(
-                                    isLoading = false,
-                                    error = result.message,
-                                    subscriptionPlans = emptyList()
-                                )
-                            }
-                            else -> Unit
+                        is Resource.Success -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = null,
+                                subscriptionPlans = result.data!!
+                            )
                         }
+
+                        is Resource.Error -> {
+                            _subscriptionState.value = _subscriptionState.value.copy(
+                                isLoading = false,
+                                error = result.message,
+                                subscriptionPlans = emptyList()
+                            )
+                        }
+                        else -> Unit
                     }
                 }
             }
@@ -163,6 +176,25 @@ class SubscriptionViewModel @Inject constructor(
             }
         }
     }
+
+    fun onSubscriptionEvent(event: SubscriptionEvent){
+        when(event){
+            is SubscriptionEvent.RefreshCurrentSubscription -> {
+                user?.let { getCurrentSubscription(it.id, true) }
+            }
+            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans(true)
+            is SubscriptionEvent.RefreshHistory -> {
+                user?.let { getTransactionHistory(it.email, true) }
+            }
+            is SubscriptionEvent.RefreshAll -> {
+                user?.let {
+                    getCurrentSubscription(it.id, true)
+                    getTransactionHistory(it.email, true)
+                }
+            }
+        }
+    }
+
 
     private fun handleData(plan: SubscriptionPlan){
         val cardNumberResult = validateField.execute(cardDetailsState.cardNumber)
