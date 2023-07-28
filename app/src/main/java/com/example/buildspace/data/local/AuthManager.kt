@@ -69,7 +69,7 @@ class AuthManager(private val context: Context) {
         }
     }
 
-    suspend fun clearUserLoginStat(){
+    suspend fun clearUserLoginState(){
         context.dataStore.edit { preferences ->
             preferences.remove(IS_REMEMBER_USER)
         }

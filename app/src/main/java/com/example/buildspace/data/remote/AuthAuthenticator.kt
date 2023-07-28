@@ -21,6 +21,7 @@ class AuthAuthenticator @Inject constructor(private val authManager: AuthManager
             if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED){
                 //token expired, so restart the login process
                 authManager.deleteToken()
+                authManager.clearUserLoginState()
             }
 
             token?.let {

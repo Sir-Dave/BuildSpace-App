@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.mapper.toUser
 import com.example.buildspace.data.remote.dto.request.SignInRequest
-import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.AuthRepository
 import com.example.buildspace.domain.use_cases.ValidateEmail
 import com.example.buildspace.domain.use_cases.ValidateField
@@ -99,11 +98,12 @@ class SignInViewModel @Inject constructor(
                                 token = result.data!!.token,
                                 user =  result.data.user.toUser()
                             )
-                            saveToken(_authState.value.token!!)
-                            saveUser(_authState.value.user!!)
+
+                            authManager.saveToken(_authState.value.token!!)
+                            authManager.saveUser(_authState.value.user!!)
 
                             if (signInFormState.isRememberUser) {
-                                saveUserLoginState()
+                                authManager.saveUserLoginState()
                             }
 
                             signInEventChannel.send(SignInEvent.Success)
@@ -124,24 +124,6 @@ class SignInViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-
-    private fun saveToken(token: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            authManager.saveToken(token)
-        }
-    }
-
-    private fun saveUser(user: User){
-        viewModelScope.launch(Dispatchers.IO){
-            authManager.saveUser(user)
-        }
-    }
-
-    private fun saveUserLoginState(){
-        viewModelScope.launch {
-            authManager.saveUserLoginState()
         }
     }
 
