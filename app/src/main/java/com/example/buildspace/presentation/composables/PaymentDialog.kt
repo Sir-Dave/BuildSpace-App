@@ -17,9 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.presentation.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +25,7 @@ fun PaymentDialog(
     isSuccess: Boolean,
     text: String,
     onDismissRequest: () -> Unit,
-    navHostController: NavHostController,
+    onNavigateToDashboard: () -> Unit
 ){
     Dialog(onDismissRequest = { onDismissRequest() }) {
         OutlinedCard(
@@ -65,11 +63,7 @@ fun PaymentDialog(
                 Button(
                     onClick = {
                         if (isSuccess){
-                            navHostController.navigate(Screen.DashboardScreen.route) {
-                                popUpTo(Screen.AuthScreen.route) {
-                                    inclusive = true
-                                }
-                            }
+                            onNavigateToDashboard()
                         }
                         onDismissRequest()
                     },

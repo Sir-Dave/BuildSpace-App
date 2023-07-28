@@ -16,24 +16,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
-import com.example.buildspace.presentation.subscription.SubscriptionViewModel
+import com.example.buildspace.domain.model.User
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.SubscriptionCard
-import com.example.buildspace.ui.theme.BuildSpaceTheme
+import com.example.buildspace.presentation.subscription.SubscriptionEvent
+import com.example.buildspace.presentation.subscription.SubscriptionState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionHistory(
-    viewModel: SubscriptionViewModel = hiltViewModel()
+    state: SubscriptionState,
+    user: User?,
+    onSubscriptionEvent: (SubscriptionEvent) -> Unit,
 ){
-    val state by viewModel.subscriptionState.collectAsState()
     val subscriptionHistory = state.subscriptionList
-    val user = viewModel.user
+
+    LaunchedEffect(Unit) {
+        onSubscriptionEvent(SubscriptionEvent.RefreshHistory)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -173,15 +176,5 @@ fun EmptySubscriptionHistory(){
                 .fillMaxWidth()
                 .padding(8.dp)
         )
-    }
-
-
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SubscriptionHistoryPreview(){
-    BuildSpaceTheme{
-        SubscriptionHistory()
     }
 }

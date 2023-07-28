@@ -14,34 +14,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
-import com.example.buildspace.presentation.subscription.SubscriptionEvent
-import com.example.buildspace.presentation.subscription.SubscriptionViewModel
+import com.example.buildspace.domain.model.User
+import com.example.buildspace.presentation.PaymentEvent
+import com.example.buildspace.presentation.PaymentState
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.PaymentDialog
 import com.example.buildspace.presentation.credit_card.CreditCardDialog
 import com.example.buildspace.presentation.credit_card.OTPDialog
+import com.example.buildspace.presentation.subscription.SubscriptionEvent
+import com.example.buildspace.presentation.subscription.SubscriptionState
 import com.example.buildspace.ui.theme.LightBackground
 
 @Composable
 fun SubscriptionPlans(
-    viewModel: SubscriptionViewModel = hiltViewModel(),
-    navHostController: NavHostController,
+   state: SubscriptionState,
+   user: User?,
+   paymentState: PaymentState,
+   onSubscriptionEvent: (SubscriptionEvent) -> Unit,
+   onPaymentEvent: (PaymentEvent) -> Unit,
+   onNavigateToDashboard: () -> Unit,
 ){
-    val state by viewModel.subscriptionState.collectAsState()
     val subscriptionPlans = state.subscriptionPlans
-    val user = viewModel.user
-
     var showDialog by remember { mutableStateOf(false) }
     var showOtpDialog by remember { mutableStateOf(false) }
     var showPaymentDialog by remember { mutableStateOf(false) }
 
-    val paymentState = viewModel.paymentState
-
     var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
+
+    LaunchedEffect(Unit) {
+        onSubscriptionEvent(SubscriptionEvent.RefreshPlans)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -77,7 +81,7 @@ fun SubscriptionPlans(
             OTPDialog(
                 onDismissRequest = {
                     showOtpDialog = false
-                    viewModel.paymentState = viewModel.paymentState.copy(message = null)
+                    onPaymentEvent(PaymentEvent.ResetPaymentMessage)
                 }
             )
         }
@@ -90,15 +94,14 @@ fun SubscriptionPlans(
                 onDismissRequest = {
                     showPaymentDialog = false
                     if (isSuccess){
-                        viewModel.paymentState = viewModel.paymentState.copy(message = null)
-                        viewModel.onSubscriptionEvent(SubscriptionEvent.RefreshAll)
+                        onPaymentEvent(PaymentEvent.ResetPaymentMessage)
+                        onSubscriptionEvent(SubscriptionEvent.RefreshAll)
                     }
                     else{
-                        viewModel.paymentState = viewModel.paymentState.copy(error = null)
+                        onPaymentEvent(PaymentEvent.ResetPaymentError)
                     }
                 },
-
-                navHostController = navHostController
+                onNavigateToDashboard = onNavigateToDashboard
             )
         }
 

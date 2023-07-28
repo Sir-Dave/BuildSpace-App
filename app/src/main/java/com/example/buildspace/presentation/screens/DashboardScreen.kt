@@ -1,5 +1,6 @@
 package com.example.buildspace.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -17,14 +19,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.Subscription
-import com.example.buildspace.presentation.subscription.SubscriptionViewModel
+import com.example.buildspace.domain.model.User
+import com.example.buildspace.presentation.ErrorEvent
 import com.example.buildspace.presentation.composables.CircularText
-import com.example.buildspace.presentation.navigation.Screen
+import com.example.buildspace.presentation.subscription.SubscriptionEvent
+import com.example.buildspace.presentation.subscription.SubscriptionState
 import com.example.buildspace.ui.theme.BuildSpaceTheme
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -33,12 +36,34 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(
-    navHostController: NavHostController,
-    viewModel: SubscriptionViewModel = hiltViewModel()
+    state: SubscriptionState,
+    user: User?,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToPlans: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onSubscriptionEvent: (SubscriptionEvent) -> Unit,
+    errorEvent: Flow<ErrorEvent>,
 ){
-    val state by viewModel.subscriptionState.collectAsState()
     val currentSubscription = state.currentSubscription
-    val user = viewModel.user
+    val context = LocalContext.current
+
+    LaunchedEffect(true){
+        onSubscriptionEvent(SubscriptionEvent.RefreshCurrentSubscription)
+
+        errorEvent.collect{ event ->
+            when (event){
+                ErrorEvent.TokenExpiredEvent -> {
+
+                    Toast.makeText(
+                        context,
+                        "Session expired, you need to login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onNavigateToLogin()
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -68,7 +93,7 @@ fun Dashboard(
         }
 
         if (currentSubscription == null){
-            UserNotSubscribed(navHostController)
+            UserNotSubscribed(onNavigateToPlans)
         }
 
         else {
@@ -135,7 +160,7 @@ fun Dashboard(
 
             Button(
                 onClick = {
-                    navHostController.navigate(Screen.SubscriptionHistoryScreen.route)
+                    onNavigateToHistory()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
@@ -155,7 +180,7 @@ fun Dashboard(
 
 @Composable
 fun UserNotSubscribed(
-    navHostController: NavHostController
+    onNavigateToPlans: () -> Unit
 ){
     Column {
         Image(
@@ -186,7 +211,7 @@ fun UserNotSubscribed(
 
         Button(
             onClick = {
-                navHostController.navigate(Screen.SubscriptionPlanScreen.route)
+                onNavigateToPlans()
             },
             modifier = Modifier
                 .fillMaxWidth()

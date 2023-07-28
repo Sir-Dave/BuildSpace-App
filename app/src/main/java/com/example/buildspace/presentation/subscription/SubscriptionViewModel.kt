@@ -10,14 +10,21 @@ import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.domain.use_cases.ValidateField
+import com.example.buildspace.presentation.ErrorEvent
+import com.example.buildspace.presentation.PaymentEvent
 import com.example.buildspace.presentation.PaymentState
 import com.example.buildspace.presentation.credit_card.*
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,25 +43,18 @@ class SubscriptionViewModel @Inject constructor(
 
     var paymentState by mutableStateOf(PaymentState())
 
+    private val errorEventChannel = Channel<ErrorEvent>()
+    val errorEvent = errorEventChannel.receiveAsFlow()
+
     init {
         viewModelScope.launch {
-
-            coroutineScope {
-                val userResult = async { authManager.getUser().first() }
-                user = userResult.await()
-            }
-
-            _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
-
-            user?.let {
-                getCurrentSubscription(it.id)
-                getTransactionHistory(it.email)
-                getSubscriptionPlans()
-            }
+            val userResult = async { authManager.getUser().first() }
+            user = userResult.await()
         }
     }
 
     private fun getCurrentSubscription(userId: String, fetchFromRemote: Boolean = false){
+        _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
         viewModelScope.launch {
             val currentSubscriptionResult = repository.getUserCurrentSubscription(userId, fetchFromRemote)
             currentSubscriptionResult.collect{
@@ -75,6 +75,9 @@ class SubscriptionViewModel @Inject constructor(
                                 error = result.message,
                                 currentSubscription = null
                             )
+
+                            if (result.message == "Token has expired, login to continue")
+                                errorEventChannel.send(ErrorEvent.TokenExpiredEvent)
                         }
 
                         else -> Unit
@@ -85,6 +88,7 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     private fun getTransactionHistory(userEmail: String, fetchFromRemote: Boolean = false) {
+        _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
         viewModelScope.launch {
             val subscriptionHistoryResult =
                 repository.getUserTransactionHistory(userEmail, fetchFromRemote)
@@ -116,6 +120,7 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     private fun getSubscriptionPlans(fetchFromRemote: Boolean = false){
+        _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
         viewModelScope.launch {
             val subscriptionPlansResult = repository.getAllSubscriptionPlans(fetchFromRemote)
             subscriptionPlansResult.collect{
@@ -181,11 +186,11 @@ class SubscriptionViewModel @Inject constructor(
     fun onSubscriptionEvent(event: SubscriptionEvent){
         when(event){
             is SubscriptionEvent.RefreshCurrentSubscription -> {
-                user?.let { getCurrentSubscription(it.id, true) }
+                user?.let { getCurrentSubscription(it.id) }
             }
-            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans(true)
+            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans()
             is SubscriptionEvent.RefreshHistory -> {
-                user?.let { getTransactionHistory(it.email, true) }
+                user?.let { getTransactionHistory(it.email) }
             }
             is SubscriptionEvent.RefreshAll -> {
                 user?.let {
@@ -196,6 +201,18 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
+    fun onPaymentEvent(event: PaymentEvent){
+        paymentState = when(event){
+            is PaymentEvent.ResetPaymentError -> {
+                paymentState.copy(error = null)
+
+            }
+
+            is PaymentEvent.ResetPaymentMessage -> {
+                paymentState.copy(message = null)
+            }
+        }
+    }
 
     private fun handleData(plan: SubscriptionPlan){
         val cardNumberResult = validateField.execute(cardDetailsState.cardNumber)
