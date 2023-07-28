@@ -52,7 +52,7 @@ fun Dashboard(
 
         errorEvent.collect{ event ->
             when (event){
-                ErrorEvent.TokenExpiredEvent -> {
+                ErrorEvent.UserNeedsToLoginEvent -> {
 
                     Toast.makeText(
                         context,

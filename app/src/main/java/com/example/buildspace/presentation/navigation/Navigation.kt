@@ -1,6 +1,5 @@
 package com.example.buildspace.presentation.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,8 +16,6 @@ import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 
 @Composable
 fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
-    Log.d("Navigation", "isRemember user: $isRememberUser")
-
 
     NavHost(
         navController = navHostController,

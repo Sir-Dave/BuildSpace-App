@@ -76,8 +76,9 @@ class SubscriptionViewModel @Inject constructor(
                                 currentSubscription = null
                             )
 
-                            if (result.message == "You need to log in to access this page")
-                                errorEventChannel.send(ErrorEvent.TokenExpiredEvent)
+                            if (result.message == "Token has expired, login to continue" ||
+                                result.message == "You need to log in to access this page")
+                                errorEventChannel.send(ErrorEvent.UserNeedsToLoginEvent)
                         }
 
                         else -> Unit
