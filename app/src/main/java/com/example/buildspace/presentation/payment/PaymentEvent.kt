@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.payment
 
 sealed class PaymentEvent{
     object ResetPaymentMessage: PaymentEvent()

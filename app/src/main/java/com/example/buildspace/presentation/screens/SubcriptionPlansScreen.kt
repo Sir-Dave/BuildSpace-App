@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
 import com.example.buildspace.domain.model.User
-import com.example.buildspace.presentation.PaymentEvent
-import com.example.buildspace.presentation.PaymentState
+import com.example.buildspace.presentation.payment.PaymentEvent
+import com.example.buildspace.presentation.payment.PaymentState
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.PaymentDialog
 import com.example.buildspace.presentation.credit_card.CreditCardDialog
@@ -29,12 +29,12 @@ import com.example.buildspace.ui.theme.LightBackground
 
 @Composable
 fun SubscriptionPlans(
-   state: SubscriptionState,
-   user: User?,
-   paymentState: PaymentState,
-   onSubscriptionEvent: (SubscriptionEvent) -> Unit,
-   onPaymentEvent: (PaymentEvent) -> Unit,
-   onNavigateToDashboard: () -> Unit,
+    state: SubscriptionState,
+    user: User?,
+    paymentState: PaymentState,
+    onSubscriptionEvent: (SubscriptionEvent) -> Unit,
+    onPaymentEvent: (PaymentEvent) -> Unit,
+    onNavigateToDashboard: () -> Unit,
 ){
     val subscriptionPlans = state.subscriptionPlans
     var showDialog by remember { mutableStateOf(false) }

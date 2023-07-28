@@ -1,4 +1,4 @@
-package com.example.buildspace.presentation
+package com.example.buildspace.presentation.payment
 
 data class PaymentState(
     val isPaymentLoading: Boolean = false,
