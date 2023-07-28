@@ -11,8 +11,8 @@ import com.example.buildspace.domain.model.User
 import com.example.buildspace.domain.repository.SubscriptionRepository
 import com.example.buildspace.domain.use_cases.ValidateField
 import com.example.buildspace.presentation.ErrorEvent
-import com.example.buildspace.presentation.PaymentEvent
-import com.example.buildspace.presentation.PaymentState
+import com.example.buildspace.presentation.payment.PaymentEvent
+import com.example.buildspace.presentation.payment.PaymentState
 import com.example.buildspace.presentation.credit_card.*
 import com.example.buildspace.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,7 +76,7 @@ class SubscriptionViewModel @Inject constructor(
                                 currentSubscription = null
                             )
 
-                            if (result.message == "Token has expired, login to continue")
+                            if (result.message == "You need to log in to access this page")
                                 errorEventChannel.send(ErrorEvent.TokenExpiredEvent)
                         }
 

@@ -47,7 +47,7 @@ fun Dashboard(
     val currentSubscription = state.currentSubscription
     val context = LocalContext.current
 
-    LaunchedEffect(true){
+    LaunchedEffect(Unit){
         onSubscriptionEvent(SubscriptionEvent.RefreshCurrentSubscription)
 
         errorEvent.collect{ event ->

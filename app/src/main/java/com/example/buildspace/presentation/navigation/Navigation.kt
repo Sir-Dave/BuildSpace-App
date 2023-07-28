@@ -53,8 +53,9 @@ fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
                     },
 
                     onNavigateToLogin = {
-                        navHostController.navigate(Screen.SignInScreen.route)
-                        //popUpTo(Screen.DashboardScreen.route) { inclusive = true }
+                        navHostController.navigate(Screen.SignInScreen.route){
+                            popUpTo(Screen.DashboardScreen.route) { inclusive = true }
+                        }
                     },
                     onSubscriptionEvent = viewModel::onSubscriptionEvent,
                     errorEvent = viewModel.errorEvent
