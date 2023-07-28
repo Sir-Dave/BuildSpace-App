@@ -9,6 +9,7 @@ import androidx.room.Room
 import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.local.BuildSpaceDatabase
 import com.example.buildspace.data.remote.Api
+import com.example.buildspace.data.remote.AuthAuthenticator
 import com.example.buildspace.data.remote.AuthInterceptor
 import com.example.buildspace.domain.use_cases.ValidateEmail
 import com.example.buildspace.domain.use_cases.ValidateField
@@ -54,8 +55,14 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideAuthAuthenticator(authManager: AuthManager): AuthAuthenticator =
+        AuthAuthenticator(authManager)
+
+    @Singleton
+    @Provides
     fun provideOkHttpClient(
-        authInterceptor: AuthInterceptor
+        authInterceptor: AuthInterceptor,
+        authAuthenticator: AuthAuthenticator
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -63,6 +70,7 @@ object AppModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(authAuthenticator)
             .build()
     }
 
