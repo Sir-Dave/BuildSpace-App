@@ -126,9 +126,4 @@ class SignInViewModel @Inject constructor(
             }
         }
     }
-
-    sealed class SignInEvent{
-        object Success: SignInEvent()
-        data class Failure(val errorMessage: String): SignInEvent()
-    }
 }
