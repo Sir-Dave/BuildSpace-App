@@ -13,40 +13,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.presentation.navigation.Screen
+import com.example.buildspace.presentation.SignInEvent
+import com.example.buildspace.presentation.auth.AuthState
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignIn(
-    navHostController: NavHostController,
-    viewModel: SignInViewModel = hiltViewModel()
+    state: AuthState,
+    loginState: SignInFormState,
+    validationEvent: Flow<SignInEvent>,
+    onEvent: (SignInFormEvent) -> Unit,
+    onNavigateToHomeScreen: () -> Unit,
+    onNavigateToSignUpScreen: () -> Unit,
 ){
-    val state by viewModel.authState.collectAsState()
-    val loginState = viewModel.signInFormState
     val context = LocalContext.current
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = context){
-        viewModel.validationEvent.collect{ event ->
+        validationEvent.collect{ event ->
             when (event){
-                is SignInViewModel.SignInEvent.Success ->{
-                    navHostController.navigate(Screen.HomeScreen.route) {
-                        popUpTo(Screen.AuthScreen.route) {
-                            inclusive = true
-                        }
-                    }
-                }
-                is SignInViewModel.SignInEvent.Failure -> {
+                is SignInEvent.Success ->{ onNavigateToHomeScreen() }
+                is SignInEvent.Failure -> {
                     Toast.makeText(
                         context,
                         event.errorMessage,
@@ -83,7 +81,7 @@ fun SignIn(
         OutlinedTextField(
             value = loginState.email,
             onValueChange = {
-                viewModel.onEvent(SignInFormEvent.EmailChanged(it))
+                onEvent(SignInFormEvent.EmailChanged(it))
             },
             label = {
                 Text(
@@ -106,7 +104,7 @@ fun SignIn(
         OutlinedTextField(
             value = loginState.password,
             onValueChange = {
-                viewModel.onEvent(SignInFormEvent.PasswordChanged(it))
+                onEvent(SignInFormEvent.PasswordChanged(it))
             },
             label = {
                 Text(
@@ -130,11 +128,24 @@ fun SignIn(
                     controller?.hide()
                 }
             ),
-            visualTransformation = PasswordVisualTransformation()
+            trailingIcon = {
+                IconButton(
+                    onClick = { isPasswordVisible = !isPasswordVisible }
+                ) {
+                    val visiblePasswordIcon = painterResource(id = R.drawable.visibility_on)
+                    val hiddenPasswordIcon = painterResource(id = R.drawable.visibility_off)
+                    val passwordVisibilityIcon = if (isPasswordVisible)
+                        visiblePasswordIcon else hiddenPasswordIcon
+
+                    Icon(painter = passwordVisibilityIcon, contentDescription = null)
+                }
+            },
+            visualTransformation = if (isPasswordVisible)
+                VisualTransformation.None else PasswordVisualTransformation()
         )
 
         Button(
-            onClick = { viewModel.onEvent(SignInFormEvent.Submit) },
+            onClick = { onEvent(SignInFormEvent.Submit) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -177,7 +188,7 @@ fun SignIn(
             Switch(
                 checked = loginState.isRememberUser,
                 onCheckedChange = {
-                    viewModel.onEvent(SignInFormEvent.RememberMeChanged(it))
+                    onEvent(SignInFormEvent.RememberMeChanged(it))
                 },
             )
 
@@ -188,29 +199,22 @@ fun SignIn(
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(id = R.string.no_account),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Text(
+                text = stringResource(id = R.string.no_account),
+            )
 
-        Text(
-            text = stringResource(id = R.string.register),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .clickable {
-                    navHostController.navigate(Screen.SignUpScreen.route)
-                },
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center
-        )
-
+            Text(
+                text = stringResource(id = R.string.register),
+                modifier = Modifier.padding(start = 8.dp)
+                    .clickable { onNavigateToSignUpScreen() },
+                color = Color(0xFF00639A)
+            )
+        }
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -220,33 +224,5 @@ fun SignIn(
                 CircularProgressIndicator()
             }
         }
-
-        /*Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .weight(1f),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(id = R.string.no_account),
-                modifier = Modifier.padding(bottom = 8.dp),
-                fontWeight = FontWeight.Light,
-                fontSize = 15.sp,
-            )
-
-            Button(
-                onClick = {
-                    navHostController.navigate(Screen.SignUpScreen.route)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = stringResource(id = R.string.register))
-            }
-        }*/
     }
 }
