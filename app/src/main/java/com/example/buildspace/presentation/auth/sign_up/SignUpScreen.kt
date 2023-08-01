@@ -13,41 +13,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.buildspace.R
-import com.example.buildspace.presentation.navigation.Screen
+import com.example.buildspace.presentation.auth.AuthState
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUp(
-    navHostController: NavHostController,
-    viewModel: SignUpViewModel = hiltViewModel()
+    state: AuthState,
+    signUpState: SignUpFormState,
+    registrationEvent: Flow<RegistrationEvent>,
+    onEvent: (SignUpFormEvent) -> Unit,
+    onNavigateToSignInScreen: () -> Unit
 ){
-    val state by viewModel.authState.collectAsState()
-    val signUpState = viewModel.signUpFormState
     val context = LocalContext.current
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isRepeatedPasswordVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = context){
-        viewModel.registrationEvent.collect{ event ->
+        registrationEvent.collect{ event ->
             when (event){
-                is SignUpViewModel.RegistrationEvent.Success ->{
+                is RegistrationEvent.Success ->{
                     Toast.makeText(
                         context,
                         event.message,
                         Toast.LENGTH_SHORT).show()
 
-                    navHostController.navigate(Screen.SignInScreen.route)
+                    onNavigateToSignInScreen()
+
                 }
 
-                is SignUpViewModel.RegistrationEvent.Failure -> {
+                is RegistrationEvent.Failure -> {
                     Toast.makeText(
                         context,
                         event.errorMessage,
@@ -90,7 +97,7 @@ fun SignUp(
 
             OutlinedTextField(
                 value = signUpState.firstName,
-                onValueChange = { viewModel.onEvent(SignUpFormEvent.FirstNameChanged(it)) },
+                onValueChange = { onEvent(SignUpFormEvent.FirstNameChanged(it)) },
                 label = {
                     if (signUpState.firstNameError != null){
                         Text(
@@ -118,7 +125,7 @@ fun SignUp(
 
             OutlinedTextField(
                 value = signUpState.lastName,
-                onValueChange = { viewModel.onEvent(SignUpFormEvent.LastNameChanged(it)) },
+                onValueChange = { onEvent(SignUpFormEvent.LastNameChanged(it)) },
                 label = {
                     if (signUpState.lastNameError != null){
                         Text(
@@ -145,7 +152,7 @@ fun SignUp(
 
         OutlinedTextField(
             value = signUpState.email,
-            onValueChange = { viewModel.onEvent(SignUpFormEvent.EmailChanged(it)) },
+            onValueChange = { onEvent(SignUpFormEvent.EmailChanged(it)) },
             label = {
                 Text(text = signUpState.emailError ?: stringResource(id = R.string.email))
             },
@@ -164,7 +171,7 @@ fun SignUp(
 
         OutlinedTextField(
             value = signUpState.phone,
-            onValueChange = { viewModel.onEvent(SignUpFormEvent.PhoneChanged(it)) },
+            onValueChange = { onEvent(SignUpFormEvent.PhoneChanged(it)) },
             label = {
                 Text(text = signUpState.phoneError ?: stringResource(id = R.string.phone_number))
             },
@@ -183,7 +190,7 @@ fun SignUp(
 
         OutlinedTextField(
             value = signUpState.password,
-            onValueChange = { viewModel.onEvent(SignUpFormEvent.PasswordChanged(it)) },
+            onValueChange = { onEvent(SignUpFormEvent.PasswordChanged(it)) },
             label = {
                 Text(text = signUpState.passwordError ?: stringResource(id = R.string.password))
             },
@@ -198,12 +205,25 @@ fun SignUp(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Next
             ),
-            visualTransformation = PasswordVisualTransformation()
+            trailingIcon = {
+                IconButton(
+                    onClick = { isPasswordVisible = !isPasswordVisible }
+                ) {
+                    val visiblePasswordIcon = painterResource(id = R.drawable.visibility_on)
+                    val hiddenPasswordIcon = painterResource(id = R.drawable.visibility_off)
+                    val passwordVisibilityIcon = if (isPasswordVisible)
+                        visiblePasswordIcon else hiddenPasswordIcon
+
+                    Icon(painter = passwordVisibilityIcon, contentDescription = null)
+                }
+            },
+            visualTransformation = if (isPasswordVisible)
+                VisualTransformation.None else PasswordVisualTransformation()
         )
 
         OutlinedTextField(
             value = signUpState.repeatedPassword,
-            onValueChange = { viewModel.onEvent(SignUpFormEvent.RepeatedPasswordChanged(it)) },
+            onValueChange = { onEvent(SignUpFormEvent.RepeatedPasswordChanged(it)) },
             label = {
                 Text(text = signUpState.repeatedPasswordError ?: stringResource(id = R.string.confirm_password))
             },
@@ -223,12 +243,25 @@ fun SignUp(
                     controller?.hide()
                 }
             ),
-            visualTransformation = PasswordVisualTransformation()
+            trailingIcon = {
+                IconButton(
+                    onClick = { isRepeatedPasswordVisible = !isRepeatedPasswordVisible }
+                ) {
+                    val visiblePasswordIcon = painterResource(id = R.drawable.visibility_on)
+                    val hiddenPasswordIcon = painterResource(id = R.drawable.visibility_off)
+                    val passwordVisibilityIcon = if (isRepeatedPasswordVisible)
+                        visiblePasswordIcon else hiddenPasswordIcon
+
+                    Icon(painter = passwordVisibilityIcon, contentDescription = null)
+                }
+            },
+            visualTransformation = if (isRepeatedPasswordVisible)
+                VisualTransformation.None else PasswordVisualTransformation()
         )
 
         Button(
             onClick = {
-                viewModel.onEvent(SignUpFormEvent.Submit)
+                onEvent(SignUpFormEvent.Submit)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -266,56 +299,22 @@ fun SignUp(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(id = R.string.existing_account),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = stringResource(id = R.string.login),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .clickable {
-                    navHostController.navigate(Screen.SignInScreen.route)
-                },
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center
-        )
-
-        /*Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .weight(1f),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
             Text(
-                text = stringResource(id = R.string.existing_account),
-                modifier = Modifier.padding(bottom = 8.dp),
-                fontWeight = FontWeight.Light,
-                fontSize = 15.sp,
+                text = stringResource(id = R.string.existing_account)
             )
 
-            Button(
-                onClick = {
-                    navHostController.navigate(Screen.SignInScreen.route)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = stringResource(id = R.string.login))
-            }
-        }*/
+            Text(
+                text = stringResource(id = R.string.login),
+                modifier = Modifier.padding(start = 8.dp)
+                    .clickable { onNavigateToSignInScreen() },
+                color = Color(0xFF00639A)
+            )
+        }
 
         Box(
             modifier = Modifier.fillMaxSize(),
