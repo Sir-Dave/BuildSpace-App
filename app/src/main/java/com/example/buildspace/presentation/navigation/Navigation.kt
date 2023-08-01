@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.example.buildspace.presentation.auth.sign_in.SignIn
 import com.example.buildspace.presentation.auth.sign_in.SignInViewModel
 import com.example.buildspace.presentation.auth.sign_up.SignUp
+import com.example.buildspace.presentation.auth.sign_up.SignUpViewModel
 import com.example.buildspace.presentation.screens.Dashboard
 import com.example.buildspace.presentation.screens.SubscriptionHistory
 import com.example.buildspace.presentation.screens.SubscriptionPlans
@@ -48,7 +49,16 @@ fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
             }
 
             composable(Screen.SignUpScreen.route){
-                SignUp(navHostController)
+                val viewModel = hiltViewModel<SignUpViewModel>()
+                SignUp(
+                    state = viewModel.authState.collectAsState().value,
+                    signUpState = viewModel.signUpFormState,
+                    registrationEvent = viewModel.registrationEvent,
+                    onEvent = viewModel::onEvent,
+                    onNavigateToSignInScreen = {
+                        navHostController.navigate(Screen.SignInScreen.route)
+                    }
+                )
             }
         }
 

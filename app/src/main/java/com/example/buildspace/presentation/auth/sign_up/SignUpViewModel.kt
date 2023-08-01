@@ -151,8 +151,5 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    sealed class RegistrationEvent{
-        data class Success(val message: String): RegistrationEvent()
-        data class Failure(val errorMessage: String): RegistrationEvent()
-    }
+
 }
