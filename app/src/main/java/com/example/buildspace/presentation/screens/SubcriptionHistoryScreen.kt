@@ -24,6 +24,8 @@ import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.SubscriptionCard
 import com.example.buildspace.presentation.subscription.SubscriptionEvent
 import com.example.buildspace.presentation.subscription.SubscriptionState
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,9 +35,10 @@ fun SubscriptionHistory(
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
 ){
     val subscriptionHistory = state.subscriptionList
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isLoading)
 
     LaunchedEffect(Unit) {
-        onSubscriptionEvent(SubscriptionEvent.RefreshHistory)
+        onSubscriptionEvent(SubscriptionEvent.GetHistory)
     }
 
     Column(
@@ -141,9 +144,13 @@ fun SubscriptionHistory(
             EmptySubscriptionHistory()
         }
         else {
-            LazyColumn {
-                items(items = subscriptionHistory) { subscription ->
-                    SubscriptionCard(subscription = subscription)
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { onSubscriptionEvent(SubscriptionEvent.RefreshHistory) }) {
+                LazyColumn {
+                    items(items = subscriptionHistory) { subscription ->
+                        SubscriptionCard(subscription = subscription)
+                    }
                 }
             }
         }

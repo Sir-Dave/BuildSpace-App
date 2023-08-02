@@ -186,13 +186,25 @@ class SubscriptionViewModel @Inject constructor(
 
     fun onSubscriptionEvent(event: SubscriptionEvent){
         when(event){
-            is SubscriptionEvent.RefreshCurrentSubscription -> {
+            is SubscriptionEvent.GetCurrentSubscription -> {
                 user?.let { getCurrentSubscription(it.id) }
             }
-            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans()
-            is SubscriptionEvent.RefreshHistory -> {
+            is SubscriptionEvent.RefreshCurrentSubscription -> {
+                user?.let { getCurrentSubscription(it.id, true) }
+            }
+
+            is SubscriptionEvent.GetPlans -> getSubscriptionPlans()
+
+            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans(true)
+
+            is SubscriptionEvent.GetHistory -> {
                 user?.let { getTransactionHistory(it.email) }
             }
+
+            is SubscriptionEvent.RefreshHistory -> {
+                user?.let { getTransactionHistory(it.email, true) }
+            }
+
             is SubscriptionEvent.RefreshAll -> {
                 user?.let {
                     getCurrentSubscription(it.id, true)
