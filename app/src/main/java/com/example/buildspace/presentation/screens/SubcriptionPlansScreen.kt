@@ -21,6 +21,8 @@ import com.example.buildspace.presentation.payment.PaymentEvent
 import com.example.buildspace.presentation.payment.PaymentState
 import com.example.buildspace.presentation.composables.CircularText
 import com.example.buildspace.presentation.composables.PaymentDialog
+import com.example.buildspace.presentation.credit_card.CardDetailsState
+import com.example.buildspace.presentation.credit_card.CardEvent
 import com.example.buildspace.presentation.credit_card.CreditCardDialog
 import com.example.buildspace.presentation.credit_card.OTPDialog
 import com.example.buildspace.presentation.subscription.SubscriptionEvent
@@ -32,9 +34,11 @@ fun SubscriptionPlans(
     state: SubscriptionState,
     user: User?,
     paymentState: PaymentState,
+    cardState: CardDetailsState,
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
     onPaymentEvent: (PaymentEvent) -> Unit,
     onNavigateToDashboard: () -> Unit,
+    onEvent: (CardEvent) -> Unit
 ){
     val subscriptionPlans = state.subscriptionPlans
     var showDialog by remember { mutableStateOf(false) }
@@ -73,16 +77,20 @@ fun SubscriptionPlans(
         if (showDialog && selectedPlan != null){
             CreditCardDialog(
                 plan = selectedPlan!!,
-                onDismissRequest = { showDialog = false }
+                cardState = cardState,
+                onDismissRequest = { showDialog = false },
+                onEvent = onEvent
             )
         }
 
         if (showOtpDialog){
             OTPDialog(
+                cardState = cardState,
                 onDismissRequest = {
                     showOtpDialog = false
                     onPaymentEvent(PaymentEvent.ResetPaymentMessage)
-                }
+                },
+                onEvent = onEvent
             )
         }
 

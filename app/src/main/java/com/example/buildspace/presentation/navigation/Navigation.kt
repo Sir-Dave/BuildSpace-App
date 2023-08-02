@@ -95,6 +95,7 @@ fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
                     state = viewModel.subscriptionState.collectAsState().value,
                     user = viewModel.user,
                     paymentState = viewModel.paymentState,
+                    cardState = viewModel.cardDetailsState,
                     onSubscriptionEvent = viewModel::onSubscriptionEvent,
                     onNavigateToDashboard = {
                         navHostController.navigate(Screen.DashboardScreen.route) {
@@ -103,7 +104,8 @@ fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
                             }
                         }
                     },
-                    onPaymentEvent = viewModel::onPaymentEvent
+                    onPaymentEvent = viewModel::onPaymentEvent,
+                    onEvent = viewModel::onEvent
                 )
             }
 

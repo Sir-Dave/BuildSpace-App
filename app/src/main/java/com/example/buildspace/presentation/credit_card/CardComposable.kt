@@ -18,22 +18,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buildspace.R
 import com.example.buildspace.domain.model.SubscriptionPlan
-import com.example.buildspace.presentation.subscription.SubscriptionViewModel
-import com.example.buildspace.ui.theme.BuildSpaceTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditCardDialog(
     plan: SubscriptionPlan,
+    cardState: CardDetailsState,
     onDismissRequest: () -> Unit,
-    viewModel: SubscriptionViewModel = hiltViewModel()
+    onEvent: (CardEvent) -> Unit
 ){
     Dialog(onDismissRequest = { onDismissRequest() }) {
         OutlinedCard(
@@ -41,9 +38,10 @@ fun CreditCardDialog(
             modifier = Modifier.padding(8.dp),
         ) {
             DebitCardComposable(
-                viewModel = viewModel,
                 plan = plan,
-                onDismissRequest = onDismissRequest
+                cardState = cardState,
+                onDismissRequest = onDismissRequest,
+                onEvent = onEvent
             )
         }
     }
@@ -52,10 +50,10 @@ fun CreditCardDialog(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun OTPDialog(
+    cardState: CardDetailsState,
     onDismissRequest: () -> Unit,
-    viewModel: SubscriptionViewModel = hiltViewModel()
+    onEvent: (CardEvent) -> Unit
 ){
-    val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -83,7 +81,7 @@ fun OTPDialog(
                 OutlinedTextField(
                     value = cardState.cardOTP,
                     onValueChange = {
-                        viewModel.onEvent(CardEvent.CardOTPChanged(it))
+                        onEvent(CardEvent.CardOTPChanged(it))
                     },
                     label = {
                         if (cardState.cardOTPError != null) {
@@ -115,7 +113,7 @@ fun OTPDialog(
 
                 Button(
                     onClick = {
-                        viewModel.onEvent(CardEvent.SendOTP)
+                        onEvent(CardEvent.SendOTP)
                         onDismissRequest()
                     },
                     modifier = Modifier
@@ -138,11 +136,11 @@ fun OTPDialog(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DebitCardComposable(
-    viewModel: SubscriptionViewModel,
     plan: SubscriptionPlan,
-    onDismissRequest: () -> Unit
+    cardState: CardDetailsState,
+    onDismissRequest: () -> Unit,
+    onEvent: (CardEvent) -> Unit
 ){
-    val cardState = viewModel.cardDetailsState
     val controller = LocalSoftwareKeyboardController.current
 
     val expirationDateFocusRequester = remember{ FocusRequester() }
@@ -179,8 +177,7 @@ fun DebitCardComposable(
         )
         OutlinedTextField(
             value = cardState.cardNumber,
-            onValueChange = {
-                viewModel.onEvent(CardEvent.CardNumberChanged(it))
+            onValueChange = { onEvent(CardEvent.CardNumberChanged(it))
             },
             label = {
                 if (cardState.cardNumberError != null){
@@ -220,7 +217,7 @@ fun DebitCardComposable(
             OutlinedTextField(
                 value = cardState.cardExpiryDate,
                 onValueChange = {
-                    viewModel.onEvent(CardEvent.CardExpiryDateChanged(it))
+                    onEvent(CardEvent.CardExpiryDateChanged(it))
 
                     if (cardState.cardExpiryDate.length == 5) {
                         cvvFocusRequester.requestFocus()
@@ -259,7 +256,7 @@ fun DebitCardComposable(
             OutlinedTextField(
                 value = cardState.cardCVV,
                 onValueChange = {
-                    viewModel.onEvent(CardEvent.CardCVCChanged(it))
+                    onEvent(CardEvent.CardCVCChanged(it))
 
                     if (cardState.cardCVV.length == 3) {
                         pinFocusRequester.requestFocus()
@@ -298,7 +295,7 @@ fun DebitCardComposable(
         OutlinedTextField(
             value = cardState.cardPin,
             onValueChange = {
-                viewModel.onEvent(CardEvent.CardPinChanged(it))
+                onEvent(CardEvent.CardPinChanged(it))
             },
             label = {
                 if (cardState.cardPinError != null){
@@ -331,7 +328,7 @@ fun DebitCardComposable(
 
         Button(
             onClick = {
-                viewModel.onEvent(CardEvent.Submit(plan))
+                onEvent(CardEvent.Submit(plan))
                 onDismissRequest()
             },
             modifier = Modifier
@@ -347,13 +344,5 @@ fun DebitCardComposable(
             Text(text = stringResource(id = R.string.pay))
         }
 
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun OTPDialogPreview(){
-    BuildSpaceTheme{
-        OTPDialog(onDismissRequest = {})
     }
 }
