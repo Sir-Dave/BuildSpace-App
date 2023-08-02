@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -86,14 +88,21 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 navController = navController,
                                 onItemClick = {
-                                    navController.navigate(it.route)
+                                    navController.navigate(it.route){
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
                             )
                     }
-                ) {
+                ) {innerPadding ->
                     Navigation(
                         navHostController = navController,
-                        isRememberUser = isRememberUser
+                        isRememberUser = isRememberUser,
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }

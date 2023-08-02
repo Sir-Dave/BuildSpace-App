@@ -2,6 +2,7 @@ package com.example.buildspace.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,12 +18,17 @@ import com.example.buildspace.presentation.screens.SubscriptionPlans
 import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 
 @Composable
-fun Navigation(navHostController: NavHostController, isRememberUser: Boolean){
+fun Navigation(navHostController: NavHostController,
+               isRememberUser: Boolean,
+               modifier: Modifier = Modifier
+){
 
     NavHost(
         navController = navHostController,
         startDestination = if (isRememberUser) Screen.HomeScreen.route
-        else Screen.AuthScreen.route){
+        else Screen.AuthScreen.route,
+        modifier = modifier
+    ){
 
         navigation(
             route =  Screen.AuthScreen.route,
