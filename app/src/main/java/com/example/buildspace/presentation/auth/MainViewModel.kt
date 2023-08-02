@@ -6,7 +6,7 @@ import com.example.buildspace.data.local.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,7 +17,7 @@ class MainViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _isRememberUser = MutableStateFlow(false)
-    val isRememberUser : StateFlow<Boolean> = _isRememberUser
+    val isRememberUser = _isRememberUser.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
