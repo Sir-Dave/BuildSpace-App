@@ -209,7 +209,6 @@ fun SubscriptionPlans(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanCard(
     plan: SubscriptionPlan,
