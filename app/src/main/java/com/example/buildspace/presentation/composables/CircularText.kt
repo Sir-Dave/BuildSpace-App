@@ -3,6 +3,7 @@ package com.example.buildspace.presentation.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,7 +20,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CircularText(text: String,
                  borderColor: Color,
-                 modifier: Modifier
+                 onClick: () -> Unit,
+                 modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.padding(8.dp),
@@ -29,7 +31,8 @@ fun CircularText(text: String,
             modifier = modifier
                 .size(30.dp)
                 .border(BorderStroke(1.dp, borderColor), shape = CircleShape)
-                .background(Color.White, shape = CircleShape),
+                .background(Color.White, shape = CircleShape)
+                .clickable { onClick() },
             contentAlignment = Alignment.Center,
         ) {
             Text(

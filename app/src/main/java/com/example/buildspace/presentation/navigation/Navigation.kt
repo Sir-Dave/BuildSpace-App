@@ -20,6 +20,7 @@ import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 @Composable
 fun Navigation(navHostController: NavHostController,
                isRememberUser: Boolean,
+               toggleBottomSheet: () -> Unit,
                modifier: Modifier = Modifier
 ){
 
@@ -91,7 +92,10 @@ fun Navigation(navHostController: NavHostController,
                         }
                     },
                     onSubscriptionEvent = viewModel::onSubscriptionEvent,
-                    errorEvent = viewModel.errorEvent
+                    errorEvent = viewModel.errorEvent,
+                    onClickProfileIcon = {
+                        toggleBottomSheet()
+                    }
                 )
             }
 
@@ -111,7 +115,10 @@ fun Navigation(navHostController: NavHostController,
                         }
                     },
                     onPaymentEvent = viewModel::onPaymentEvent,
-                    onEvent = viewModel::onEvent
+                    onEvent = viewModel::onEvent,
+                    onClickProfileIcon = {
+                        toggleBottomSheet()
+                    }
                 )
             }
 
@@ -120,7 +127,10 @@ fun Navigation(navHostController: NavHostController,
                 SubscriptionHistory(
                     state = viewModel.subscriptionState.collectAsState().value,
                     user = viewModel.user,
-                    onSubscriptionEvent = viewModel::onSubscriptionEvent
+                    onSubscriptionEvent = viewModel::onSubscriptionEvent,
+                    onClickProfileIcon = {
+                        toggleBottomSheet()
+                    }
                 )
             }
         }

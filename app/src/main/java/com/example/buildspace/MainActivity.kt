@@ -22,12 +22,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.domain.model.BottomNavItem
+import com.example.buildspace.presentation.ProfileScreen
 import com.example.buildspace.presentation.auth.MainViewModel
 import com.example.buildspace.presentation.navigation.Navigation
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -39,6 +41,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel = viewModel<MainViewModel>()
             val isRememberUser by viewModel.isRememberUser.collectAsState()
+
+            val sheetState = rememberModalBottomSheetState()
+            val scope = rememberCoroutineScope()
+            var showBottomSheet by remember { mutableStateOf(false) }
 
             BuildSpaceTheme {
                 val navController = rememberNavController()
@@ -87,12 +93,32 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                     }
-                ) {innerPadding ->
+                ) { innerPadding ->
                     Navigation(
                         navHostController = navController,
                         isRememberUser = isRememberUser,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        toggleBottomSheet = {
+                            showBottomSheet = showBottomSheet.not()
+                        }
                     )
+
+                    if (showBottomSheet){
+                        ModalBottomSheet(
+                            onDismissRequest = { showBottomSheet = false },
+                            sheetState = sheetState
+                        ) {
+                            ProfileScreen(
+                                onDismiss = {
+                                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                        if (!sheetState.isVisible) {
+                                            showBottomSheet = false
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

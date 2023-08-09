@@ -33,6 +33,7 @@ fun SubscriptionHistory(
     state: SubscriptionState,
     user: User?,
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
+    onClickProfileIcon: () -> Unit
 ){
     val subscriptionHistory = state.subscriptionList
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isLoading)
@@ -59,7 +60,7 @@ fun SubscriptionHistory(
                 CircularText(
                     text = initials,
                     borderColor = Color.Black,
-                    modifier = Modifier
+                    onClick = onClickProfileIcon
                 )
             }
         }

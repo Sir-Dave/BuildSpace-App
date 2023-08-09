@@ -31,9 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(
     state: SubscriptionState,
@@ -43,6 +41,7 @@ fun Dashboard(
     onNavigateToLogin: () -> Unit,
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
     errorEvent: Flow<ErrorEvent>,
+    onClickProfileIcon: () -> Unit
 ){
     val currentSubscription = state.currentSubscription
     val context = LocalContext.current
@@ -87,7 +86,7 @@ fun Dashboard(
                 CircularText(
                     text = initials,
                     borderColor = Color.Black,
-                    modifier = Modifier
+                    onClick = onClickProfileIcon
                 )
             }
         }

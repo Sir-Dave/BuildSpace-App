@@ -38,7 +38,8 @@ fun SubscriptionPlans(
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
     onPaymentEvent: (PaymentEvent) -> Unit,
     onNavigateToDashboard: () -> Unit,
-    onEvent: (CardEvent) -> Unit
+    onEvent: (CardEvent) -> Unit,
+    onClickProfileIcon: () -> Unit
 ){
     val subscriptionPlans = state.subscriptionPlans
     var showDialog by remember { mutableStateOf(false) }
@@ -69,7 +70,7 @@ fun SubscriptionPlans(
                 CircularText(
                     text = initials,
                     borderColor = Color.Black,
-                    modifier = Modifier
+                    onClick = onClickProfileIcon
                 )
             }
         }
