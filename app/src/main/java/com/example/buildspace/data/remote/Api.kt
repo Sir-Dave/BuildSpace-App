@@ -22,6 +22,20 @@ interface Api {
         @Body signInRequest: SignInRequest
     ): Response<LoginResponse>
 
+    @GET("api/v1/users/id")
+    suspend fun getUserProfile(
+        @Path("id") userId: String
+    ): Response<UserDto>
+
+    @FormUrlEncoded
+    @PUT("api/v1/users/id")
+    suspend fun updateUserProfile(
+        @Path("id") userId: String,
+        @Field("firstName") firstName: String?,
+        @Field("lastName") lastName: String?,
+        @Field("phoneNumber") phoneNumber: String?
+    ): Response<UserDto>
+
     @GET("api/v1/transactions")
     suspend fun getTransactionHistory(
         @Query("email") email: String
