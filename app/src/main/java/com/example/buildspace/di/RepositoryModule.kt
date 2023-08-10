@@ -1,6 +1,7 @@
 package com.example.buildspace.di
 
 import android.content.Context
+import com.example.buildspace.data.local.AuthManager
 import com.example.buildspace.data.local.BuildSpaceDatabase
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.repository.AuthRepositoryImpl
@@ -22,8 +23,10 @@ object RepositoryModule {
     @Singleton
     fun provideAuthRepository(
         api: Api,
-        @ApplicationContext context: Context): AuthRepository{
-        return AuthRepositoryImpl(api, context)
+        @ApplicationContext context: Context,
+        authManager: AuthManager
+    ): AuthRepository{
+        return AuthRepositoryImpl(api, context, authManager)
     }
 
     @Provides
