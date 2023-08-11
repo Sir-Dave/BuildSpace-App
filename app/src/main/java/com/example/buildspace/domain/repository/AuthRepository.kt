@@ -14,7 +14,8 @@ interface AuthRepository {
 
     suspend fun signInUser(signInRequest: SignInRequest): Flow<Resource<LoginResponse>>
 
-    suspend fun getUserProfile(fetchFromRemote: Boolean): Flow<Resource<User>>
+    suspend fun getUserProfile(userId: String, fetchFromRemote: Boolean): Flow<Resource<User>>
 
-    suspend fun updateUserProfile(firstName: String, lastName: String, phoneNumber: String): Flow<Resource<User>>
+    suspend fun updateUserProfile(userId: String, firstName: String,
+                                  lastName: String, phoneNumber: String): Flow<Resource<User>>
 }
