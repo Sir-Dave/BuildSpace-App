@@ -22,13 +22,13 @@ interface Api {
         @Body signInRequest: SignInRequest
     ): Response<LoginResponse>
 
-    @GET("api/v1/users/id")
+    @GET("api/v1/users/{id}")
     suspend fun getUserProfile(
         @Path("id") userId: String
     ): Response<UserDto>
 
     @FormUrlEncoded
-    @PUT("api/v1/users/id")
+    @PUT("api/v1/users/{id}")
     suspend fun updateUserProfile(
         @Path("id") userId: String,
         @Field("firstName") firstName: String?,
