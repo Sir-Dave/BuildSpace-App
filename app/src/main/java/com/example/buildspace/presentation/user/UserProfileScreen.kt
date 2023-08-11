@@ -49,6 +49,10 @@ fun UserProfileScreen(
 
         userEvent.collect{ event ->
             when (event){
+                is UserEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
                 is UserEvent.Failure -> {
                     Toast.makeText(context, event.errorMessage, Toast.LENGTH_SHORT).show()
                 }
@@ -57,9 +61,10 @@ fun UserProfileScreen(
     }
 
     user?.let {
-        val initials by remember {
-            mutableStateOf("${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}")
-        }
+        val initials  = "${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}"
+//        by remember {
+//            mutableStateOf("${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}")
+//        }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -100,8 +105,10 @@ fun UserProfileScreen(
                     .padding(start = 8.dp, end = 8.dp),
             ) {
                 OutlinedTextField(
-                    value = user.firstName,
-                    onValueChange = { onEvent(UserInfoEvent.FirstNameChanged(it)) },
+                    value = formState.firstName,
+                    onValueChange = { firstName ->
+                        onEvent(UserInfoEvent.FirstNameChanged(firstName))
+                    },
                     label = {
                         Text(text = formState.firstNameError?: stringResource(R.string.first_name))
                     },
@@ -119,8 +126,10 @@ fun UserProfileScreen(
                 Spacer(modifier = modifier.width(16.dp))
 
                 OutlinedTextField(
-                    value = user.lastName,
-                    onValueChange = { onEvent(UserInfoEvent.LastNameChanged(it)) },
+                    value = formState.lastName,
+                    onValueChange = { lastName ->
+                        onEvent(UserInfoEvent.LastNameChanged(lastName))
+                    },
                     label = {
                         Text(text = formState.lastNameError ?: stringResource(R.string.last_name))
                     },
@@ -137,7 +146,7 @@ fun UserProfileScreen(
             }
 
             OutlinedTextField(
-                value = user.email,
+                value = formState.email,
                 onValueChange = {  },
                 label = {
                     Text(text = stringResource(R.string.email))
@@ -156,8 +165,8 @@ fun UserProfileScreen(
             )
 
             OutlinedTextField(
-                value = user.phoneNumber,
-                onValueChange = { onEvent(UserInfoEvent.PhoneNumberChanged(it))},
+                value = formState.phoneNumber,
+                onValueChange = { phone -> onEvent(UserInfoEvent.PhoneNumberChanged(phone))},
                 label = {
                     Text(text = formState.phoneNumberError ?: stringResource(R.string.phone_number))
                 },
@@ -179,7 +188,6 @@ fun UserProfileScreen(
 
             Button(
                 onClick = {
-                    onDismiss()
                     onEvent(UserInfoEvent.Submit)
                 },
                 modifier = modifier

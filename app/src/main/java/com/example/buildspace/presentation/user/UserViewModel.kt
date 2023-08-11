@@ -140,6 +140,7 @@ class UserViewViewModel @Inject constructor(
                                 user = result.data
                             )
                             updateUserFormState(result.data!!)
+                            userEventChannel.send(UserEvent.Success("Successfully updated profile"))
                         }
 
                         is Resource.Error -> {
@@ -162,6 +163,7 @@ class UserViewViewModel @Inject constructor(
         userFormState = userFormState.copy(
             firstName = user.firstName,
             lastName = user.lastName,
+            email = user.email,
             phoneNumber = user.phoneNumber,
         )
     }
