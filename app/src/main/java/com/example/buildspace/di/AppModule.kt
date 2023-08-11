@@ -11,10 +11,7 @@ import com.example.buildspace.data.local.BuildSpaceDatabase
 import com.example.buildspace.data.remote.Api
 import com.example.buildspace.data.remote.AuthAuthenticator
 import com.example.buildspace.data.remote.AuthInterceptor
-import com.example.buildspace.domain.use_cases.ValidateEmail
-import com.example.buildspace.domain.use_cases.ValidateField
-import com.example.buildspace.domain.use_cases.ValidatePassword
-import com.example.buildspace.domain.use_cases.ValidateRepeatedPassword
+import com.example.buildspace.domain.use_cases.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -85,6 +82,10 @@ object AppModule {
     @Singleton
     @Provides
     fun providePasswordValidator(): ValidatePassword = ValidatePassword()
+
+    @Singleton
+    @Provides
+    fun providePhoneValidator(): ValidatePhone = ValidatePhone()
 
     @Singleton
     @Provides

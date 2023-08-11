@@ -25,19 +25,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
+import com.example.buildspace.presentation.user.UserInfoEvent
+import com.example.buildspace.presentation.user.UserInfoState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileScreen(
+    state: UserInfoState,
+    onEvent: (UserInfoEvent) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-
     val controller = LocalSoftwareKeyboardController.current
+    val initials by remember {
+        mutableStateOf("${state.firstName.substring(0, 1)}${state.lastName.substring(0, 1)}")
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -64,7 +66,7 @@ fun ProfileScreen(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "DV",
+                text = initials,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 color = Color.Black,
@@ -77,14 +79,15 @@ fun ProfileScreen(
                 .padding(start = 8.dp, end = 8.dp),
         ) {
             OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
+                value = state.firstName,
+                onValueChange = { onEvent(UserInfoEvent.FirstNameChanged(it)) },
                 label = {
-                    Text(text = stringResource(R.string.first_name))
+                    Text(text = state.firstNameError?: stringResource(R.string.first_name))
                 },
                 placeholder = {
                     Text(text = stringResource(R.string.first_name))
                 },
+                isError = state.firstNameError != null,
                 modifier = modifier
                     .weight(1f),
                 keyboardOptions = KeyboardOptions(
@@ -95,14 +98,15 @@ fun ProfileScreen(
             Spacer(modifier = modifier.width(16.dp))
 
             OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
+                value = state.lastName,
+                onValueChange = { onEvent(UserInfoEvent.LastNameChanged(it)) },
                 label = {
-                    Text(text = stringResource(R.string.last_name))
+                    Text(text = state.lastNameError ?: stringResource(R.string.last_name))
                 },
                 placeholder = {
                     Text(text = stringResource(R.string.last_name))
                 },
+                isError = state.lastNameError != null,
                 modifier = modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -112,8 +116,8 @@ fun ProfileScreen(
         }
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = state.email,
+            onValueChange = {  },
             label = {
                 Text(text = stringResource(R.string.email))
             },
@@ -130,14 +134,15 @@ fun ProfileScreen(
         )
 
         OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
+            value = state.phoneNumber,
+            onValueChange = { onEvent(UserInfoEvent.PhoneNumberChanged(it))},
             label = {
-                Text(text = stringResource(R.string.phone_number))
+                Text(text = state.phoneNumberError ?: stringResource(R.string.phone_number))
             },
             placeholder = {
                 Text(text = stringResource(R.string.phone_number))
             },
+            isError = state.phoneNumberError != null,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
@@ -153,6 +158,7 @@ fun ProfileScreen(
         Button(
             onClick = {
                 onDismiss()
+                onEvent(UserInfoEvent.Submit)
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -192,5 +198,9 @@ fun ProfileScreen(
 @Preview(name = "Profile Preview", showBackground = true)
 @Composable
 fun ProfilePreview(){
-    ProfileScreen(onDismiss = {})
+    ProfileScreen(
+        onDismiss = {},
+        state = UserInfoState(),
+        onEvent = {}
+    )
 }
