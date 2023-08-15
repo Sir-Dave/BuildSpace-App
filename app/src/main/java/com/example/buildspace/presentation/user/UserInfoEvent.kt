@@ -7,6 +7,7 @@ sealed class UserInfoEvent{
     object LoadProfile: UserInfoEvent()
     object RefreshProfile: UserInfoEvent()
     object Submit: UserInfoEvent()
+    object LogoutUser: UserInfoEvent()
 }
 
 
