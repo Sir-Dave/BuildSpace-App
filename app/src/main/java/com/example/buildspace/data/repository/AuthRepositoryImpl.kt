@@ -34,6 +34,12 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun logoutUser(): Flow<Resource<ApiResponse>> {
+        return apiRequestFlow(context){
+            api.logoutUser()
+        }
+    }
+
     override suspend fun getUserProfile(userId: String, fetchFromRemote: Boolean): Flow<Resource<User>> {
         if (!fetchFromRemote){
             return authManager.getUser().map {

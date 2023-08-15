@@ -22,6 +22,9 @@ interface Api {
         @Body signInRequest: SignInRequest
     ): Response<LoginResponse>
 
+    @POST("api/v1/auth/logout")
+    suspend fun logoutUser(): Response<ApiResponse>
+
     @GET("api/v1/users/{id}")
     suspend fun getUserProfile(
         @Path("id") userId: String
