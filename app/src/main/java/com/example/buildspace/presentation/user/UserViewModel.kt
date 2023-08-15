@@ -62,12 +62,13 @@ class UserViewViewModel @Inject constructor(
                 getUserProfile(user?.id ?: "", fetchFromRemote = true)
             }
             is UserInfoEvent.Submit -> {
-                submitInfo()
+                validateProfileInfo()
             }
+            is UserInfoEvent.LogoutUser -> logout()
         }
     }
 
-    private fun submitInfo(){
+    private fun validateProfileInfo(){
         val firstNameResult = validateField.execute(userFormState.firstName)
         val lastNameResult = validateField.execute(userFormState.lastName)
         val phoneResult = validatePhone.execute(userFormState.phoneNumber)
@@ -152,6 +153,29 @@ class UserViewViewModel @Inject constructor(
                             userEventChannel.send(UserEvent.Failure(userInfoState.error!!))
                         }
 
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+
+    private fun logout(){
+        viewModelScope.launch {
+            authRepository.logoutUser().collect {
+                withContext(Dispatchers.Main) {
+                    when (val result = it) {
+                        is Resource.Success -> {
+                            //authManager.deleteUser()
+                            authManager.deleteToken()
+                            authManager.clearUserLoginState()
+
+                            userEventChannel.send(UserEvent.IsLoggedOut)
+                        }
+
+                        is Resource.Error -> {
+                            userEventChannel.send(UserEvent.Failure(result.message!!))
+                        }
                         else -> Unit
                     }
                 }

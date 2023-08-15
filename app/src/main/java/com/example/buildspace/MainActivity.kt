@@ -16,17 +16,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.domain.model.BottomNavItem
-import com.example.buildspace.presentation.user.UserProfileScreen
 import com.example.buildspace.presentation.auth.MainViewModel
 import com.example.buildspace.presentation.navigation.Navigation
 import com.example.buildspace.presentation.navigation.Screen
+import com.example.buildspace.presentation.user.UserProfileScreen
 import com.example.buildspace.presentation.user.UserViewViewModel
 import com.example.buildspace.ui.theme.BuildSpaceTheme
 import com.example.buildspace.ui.theme.LightBackground
@@ -123,6 +122,14 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 },
+                                onLogOut = {
+                                    val currentRoute = backStackEntry.value?.destination?.route!!
+                                    navController.navigate(Screen.AuthScreen.route){
+                                        popUpTo(currentRoute){
+                                            inclusive = true
+                                        }
+                                    }
+                                }
                             )
                         }
                     }

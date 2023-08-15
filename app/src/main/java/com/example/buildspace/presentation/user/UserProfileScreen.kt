@@ -23,12 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buildspace.R
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -38,6 +36,7 @@ fun UserProfileScreen(
     userEvent: Flow<UserEvent>,
     onEvent: (UserInfoEvent) -> Unit,
     onDismiss: () -> Unit,
+    onLogOut: () -> Unit,
     modifier: Modifier = Modifier
 ){
     val controller = LocalSoftwareKeyboardController.current
@@ -49,22 +48,19 @@ fun UserProfileScreen(
 
         userEvent.collect{ event ->
             when (event){
-                is UserEvent.Success -> {
+                is UserEvent.Success ->
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
 
-                is UserEvent.Failure -> {
+                is UserEvent.Failure ->
                     Toast.makeText(context, event.errorMessage, Toast.LENGTH_SHORT).show()
-                }
+
+                is UserEvent.IsLoggedOut -> onLogOut()
             }
         }
     }
 
     user?.let {
         val initials  = "${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}"
-//        by remember {
-//            mutableStateOf("${it.firstName.substring(0, 1)}${it.lastName.substring(0, 1)}")
-//        }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -205,6 +201,7 @@ fun UserProfileScreen(
 
             Button(
                 onClick = {
+                    onEvent(UserInfoEvent.LogoutUser)
                     onDismiss()
                 },
                 modifier = modifier
@@ -222,17 +219,4 @@ fun UserProfileScreen(
 
         }
     }
-}
-
-
-@Preview(name = "Profile Preview", showBackground = true)
-@Composable
-fun ProfilePreview(){
-    UserProfileScreen(
-        userInfo = UserInfoState(),
-        formState = UserFormState(),
-        userEvent = flowOf(),
-        onDismiss = {},
-        onEvent = {}
-    )
 }
