@@ -8,26 +8,28 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.buildspace.presentation.auth.MainViewModel
 import com.example.buildspace.presentation.auth.sign_in.SignIn
 import com.example.buildspace.presentation.auth.sign_in.SignInViewModel
 import com.example.buildspace.presentation.auth.sign_up.SignUp
 import com.example.buildspace.presentation.auth.sign_up.SignUpViewModel
-import com.example.buildspace.presentation.screens.Dashboard
+import com.example.buildspace.presentation.main.HomeScreen
 import com.example.buildspace.presentation.screens.SubscriptionHistory
 import com.example.buildspace.presentation.screens.SubscriptionPlans
 import com.example.buildspace.presentation.subscription.SubscriptionViewModel
 
 @Composable
-fun Navigation(navHostController: NavHostController,
-               isRememberUser: Boolean,
-               toggleBottomSheet: () -> Unit,
-               modifier: Modifier = Modifier
+fun Navigation(
+    mainViewModel: MainViewModel,
+    navHostController: NavHostController,
+    toggleBottomSheet: () -> Unit,
+    modifier: Modifier = Modifier,
+    onExitApp: () -> Unit
 ){
 
     NavHost(
         navController = navHostController,
-        startDestination = if (isRememberUser) Screen.HomeScreen.route
-        else Screen.AuthScreen.route,
+        startDestination = Screen.HomeScreen.route,
         modifier = modifier
     ){
 
@@ -51,7 +53,8 @@ fun Navigation(navHostController: NavHostController,
                     },
                     onNavigateToSignUpScreen = {
                         navHostController.navigate(Screen.SignUpScreen.route)
-                    }
+                    },
+                    onExitApp = onExitApp
                 )
             }
 
@@ -74,28 +77,13 @@ fun Navigation(navHostController: NavHostController,
             startDestination = Screen.DashboardScreen.route
         ){
             composable(Screen.DashboardScreen.route){
-                val viewModel = hiltViewModel<SubscriptionViewModel>()
-                Dashboard(
-                    state = viewModel.subscriptionState.collectAsState().value,
-                    user = viewModel.user,
-                    onNavigateToHistory = {
-                        navHostController.navigate(Screen.SubscriptionHistoryScreen.route)
+                HomeScreen(
+                    viewModel = mainViewModel,
+                    navHostController = navHostController,
+                    onNavigateToLoginScreen = {
+                        navHostController.navigate(Screen.SignInScreen.route)
                     },
-
-                    onNavigateToPlans = {
-                        navHostController.navigate(Screen.SubscriptionPlanScreen.route)
-                    },
-
-                    onNavigateToLogin = {
-                        navHostController.navigate(Screen.SignInScreen.route){
-                            popUpTo(Screen.DashboardScreen.route) { inclusive = true }
-                        }
-                    },
-                    onSubscriptionEvent = viewModel::onSubscriptionEvent,
-                    errorEvent = viewModel.errorEvent,
-                    onClickProfileIcon = {
-                        toggleBottomSheet()
-                    }
+                    toggleBottomSheet = toggleBottomSheet
                 )
             }
 

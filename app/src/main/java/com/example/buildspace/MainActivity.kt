@@ -41,7 +41,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel = viewModel<MainViewModel>()
-            val isRememberUser by viewModel.isRememberUser.collectAsState()
 
             val sheetState = rememberModalBottomSheetState()
             val scope = rememberCoroutineScope()
@@ -96,12 +95,14 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Navigation(
+                        mainViewModel = viewModel,
                         navHostController = navController,
-                        isRememberUser = isRememberUser,
+                        //isRememberUser = isRememberUser,
                         modifier = Modifier.padding(innerPadding),
                         toggleBottomSheet = {
                             showBottomSheet = showBottomSheet.not()
-                        }
+                        },
+                        onExitApp = { this.finish() }
                     )
 
                     if (showBottomSheet){
