@@ -97,7 +97,6 @@ class MainActivity : ComponentActivity() {
                     Navigation(
                         mainViewModel = viewModel,
                         navHostController = navController,
-                        //isRememberUser = isRememberUser,
                         modifier = Modifier.padding(innerPadding),
                         toggleBottomSheet = {
                             showBottomSheet = showBottomSheet.not()

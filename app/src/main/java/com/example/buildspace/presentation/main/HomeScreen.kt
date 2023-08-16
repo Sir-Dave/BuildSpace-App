@@ -1,10 +1,7 @@
 package com.example.buildspace.presentation.main
 
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.buildspace.presentation.auth.MainViewModel
@@ -20,7 +17,8 @@ fun HomeScreen(
     toggleBottomSheet: () -> Unit,
 ) {
     
-    val viewState by viewModel.viewState.collectAsState()
+    val viewState by remember(viewModel) { viewModel.viewState }
+        .collectAsState(initial = ViewState.Loading)
 
     Log.d("HomeScreen", "viewState is $viewState")
 

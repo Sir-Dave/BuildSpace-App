@@ -15,25 +15,20 @@ class MainViewModel @Inject constructor(
     private val authManager: AuthManager
 ): ViewModel() {
 
-    private val _isRememberUser = MutableStateFlow(false)
-    val isRememberUser = _isRememberUser.asStateFlow()
+    private val isRememberUser = MutableStateFlow(false)
 
-    val viewState = _isRememberUser.map { hasLoggedIn ->
+    val viewState = isRememberUser.map { hasLoggedIn ->
         if (hasLoggedIn) {
             ViewState.LoggedIn
         } else {
             ViewState.NotLoggedIn
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = ViewState.Loading
-    )
+    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             authManager.getUserLoginState().collect {
-                _isRememberUser.value = it
+                isRememberUser.value = it
             }
         }
     }
