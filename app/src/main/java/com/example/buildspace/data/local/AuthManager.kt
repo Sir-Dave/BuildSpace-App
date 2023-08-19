@@ -15,6 +15,7 @@ class AuthManager(private val context: Context) {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val USER_KEY = stringPreferencesKey("user")
         private val IS_REMEMBER_USER = booleanPreferencesKey("is_remember_user")
+        private val IS_FIRST_LOGIN = booleanPreferencesKey("is_first_login")
     }
 
     fun getToken(): Flow<String?> {
@@ -72,6 +73,18 @@ class AuthManager(private val context: Context) {
     suspend fun clearUserLoginState(){
         context.dataStore.edit { preferences ->
             preferences.remove(IS_REMEMBER_USER)
+        }
+    }
+
+    fun isFirstLogin(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            preferences[IS_FIRST_LOGIN] ?: true
+        }
+    }
+
+    suspend fun saveFirstLogin(){
+        context.dataStore.edit { preferences ->
+            preferences[IS_FIRST_LOGIN] = false
         }
     }
 }
