@@ -22,7 +22,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.buildspace.domain.model.BottomNavItem
-import com.example.buildspace.presentation.auth.MainViewModel
+import com.example.buildspace.presentation.main.MainViewModel
 import com.example.buildspace.presentation.navigation.Navigation
 import com.example.buildspace.presentation.navigation.Screen
 import com.example.buildspace.presentation.user.UserProfileScreen
@@ -39,6 +39,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val tobeHidden = setOf(
+            Screen.SignInScreen.route,
+            Screen.SignUpScreen.route,
+            Screen.MainScreen.route,
+            Screen.LoadingScreen.route
+        )
+
         setContent {
             val viewModel = viewModel<MainViewModel>()
 
@@ -53,11 +60,8 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(false)
                 }
 
-                showBottomBar = when(backStackEntry.value?.destination?.route) {
-                    Screen.SignInScreen.route -> false
-                    Screen.SignUpScreen.route -> false
-                    else -> true
-                }
+                showBottomBar = !tobeHidden.contains(backStackEntry.value?.destination?.route)
+
                 Scaffold(
                     bottomBar = {
                         if (showBottomBar)
