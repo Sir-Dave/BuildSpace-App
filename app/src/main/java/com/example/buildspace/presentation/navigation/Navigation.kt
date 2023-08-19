@@ -24,8 +24,7 @@ fun Navigation(
     mainViewModel: MainViewModel,
     navHostController: NavHostController,
     toggleBottomSheet: () -> Unit,
-    modifier: Modifier = Modifier,
-    onExitApp: () -> Unit
+    modifier: Modifier = Modifier
 ){
 
     NavHost(
@@ -80,8 +79,7 @@ fun Navigation(
                     },
                     onNavigateToSignUpScreen = {
                         navHostController.navigate(Screen.SignUpScreen.route)
-                    },
-                    onExitApp = onExitApp
+                    }
                 )
             }
 

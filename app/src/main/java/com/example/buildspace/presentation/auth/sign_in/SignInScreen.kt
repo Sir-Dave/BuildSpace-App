@@ -1,7 +1,6 @@
 package com.example.buildspace.presentation.auth.sign_in
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -35,8 +34,7 @@ fun SignIn(
     validationEvent: Flow<SignInEvent>,
     onEvent: (SignInFormEvent) -> Unit,
     onNavigateToHomeScreen: () -> Unit,
-    onNavigateToSignUpScreen: () -> Unit,
-    onExitApp: () -> Unit
+    onNavigateToSignUpScreen: () -> Unit
 ){
     val context = LocalContext.current
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -53,10 +51,6 @@ fun SignIn(
                 }
             }
         }
-    }
-
-    BackHandler(enabled = true) {
-        onExitApp()
     }
 
     Column(

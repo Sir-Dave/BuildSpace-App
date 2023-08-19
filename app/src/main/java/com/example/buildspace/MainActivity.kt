@@ -104,8 +104,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         toggleBottomSheet = {
                             showBottomSheet = showBottomSheet.not()
-                        },
-                        onExitApp = { this.finish() }
+                        }
                     )
 
                     if (showBottomSheet){

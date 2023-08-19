@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.buildspace.data.local.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,32 +22,36 @@ class MainViewModel @Inject constructor(
     private val loginToken = MutableStateFlow<String?>(null)
     private val isFirstTimeUser = MutableStateFlow(false)
 
-    /*val viewState = isRememberUser.map { hasLoggedIn ->
-        if (hasLoggedIn) {
+    val viewState = combine(
+        isFirstTimeUser,
+        loginToken,
+        isRememberUser
+    ) { isFirstTime, token, rememberUser ->
+        if (isFirstTime) {
+            ViewState.OnBoarding
+        } else if (token != null && rememberUser) {
             ViewState.LoggedIn
         } else {
             ViewState.NotLoggedIn
         }
-    }*/
-
-    val viewState = flow {
-        if (isFirstTimeUser.value) {
-            emit(ViewState.OnBoarding)
-        }
-        else if (loginToken.value != null && isRememberUser.value) {
-            emit(ViewState.LoggedIn)
-        }
-        else {
-            emit(ViewState.NotLoggedIn)
-        }
     }
-
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            authManager.isFirstLogin().collect{ isFirstTimeUser.value = it }
-            authManager.getToken().collect { loginToken.value = it }
-            authManager.getUserLoginState().collect { isRememberUser.value = it }
+            val isFirstTimeDeferred = async { authManager.isFirstLogin().first() }
+            val loginTokenDeferred = async { authManager.getToken().first() }
+            val rememberUserDeferred = async { authManager.getUserLoginState().first() }
+
+            val isFirstTime = isFirstTimeDeferred.await()
+            val token = loginTokenDeferred.await()
+            val rememberUser = rememberUserDeferred.await()
+
+            withContext(Dispatchers.Main) {
+                isFirstTimeUser.value = isFirstTime
+                loginToken.value = token
+                isRememberUser.value = rememberUser
+            }
         }
     }
+
 }
