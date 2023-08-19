@@ -83,6 +83,12 @@ class SignInViewModel @Inject constructor(
         )
     }
 
+    init {
+        viewModelScope.launch {
+            authManager.saveFirstLogin()
+        }
+    }
+
     private fun loginUser(email: String, password: String){
         viewModelScope.launch {
             _authState.value = _authState.value.copy(isLoading = true)
@@ -105,7 +111,6 @@ class SignInViewModel @Inject constructor(
                             if (signInFormState.isRememberUser) {
                                 authManager.saveUserLoginState()
                             }
-
                             signInEventChannel.send(SignInEvent.Success)
                         }
 
