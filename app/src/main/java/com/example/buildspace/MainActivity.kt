@@ -39,11 +39,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val tobeHidden = setOf(
-            Screen.SignInScreen.route,
-            Screen.SignUpScreen.route,
-            Screen.MainScreen.route,
-            Screen.LoadingScreen.route
+        val toBeShown = setOf(
+            Screen.DashboardScreen.route,
+            Screen.SubscriptionPlanScreen.route,
+            Screen.SubscriptionHistoryScreen.route
         )
 
         setContent {
@@ -60,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(false)
                 }
 
-                showBottomBar = !tobeHidden.contains(backStackEntry.value?.destination?.route)
+                showBottomBar = toBeShown.contains(backStackEntry.value?.destination?.route)
 
                 Scaffold(
                     bottomBar = {
