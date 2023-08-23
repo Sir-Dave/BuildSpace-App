@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.buildspace'
+    namespace 'com.sirdave.buildspace'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.buildspace"
+        applicationId "com.sirdave.buildspace"
         minSdk 24
         targetSdk 33
         versionCode 1
