@@ -24,7 +24,6 @@ import androidx.compose.ui.window.Dialog
 import com.sirdave.buildspace.R
 import com.sirdave.buildspace.domain.model.SubscriptionPlan
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditCardDialog(
     plan: SubscriptionPlan,
@@ -47,7 +46,7 @@ fun CreditCardDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OTPDialog(
     cardState: CardDetailsState,
