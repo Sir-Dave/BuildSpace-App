@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sirdave.buildspace.data.local.AuthManager
+import com.sirdave.buildspace.domain.model.SubscriptionHistory
 import com.sirdave.buildspace.domain.model.SubscriptionPlan
 import com.sirdave.buildspace.domain.model.User
 import com.sirdave.buildspace.domain.repository.SubscriptionRepository
@@ -45,6 +46,8 @@ class SubscriptionViewModel @Inject constructor(
 
     private val errorEventChannel = Channel<ErrorEvent>()
     val errorEvent = errorEventChannel.receiveAsFlow()
+
+    private var subscriptionHistory = listOf<SubscriptionHistory>()
 
     init {
         viewModelScope.launch {
@@ -104,6 +107,7 @@ class SubscriptionViewModel @Inject constructor(
                                 error = null,
                                 subscriptionList = result.data!!
                             )
+                            subscriptionHistory = result.data
                         }
 
                         is Resource.Error -> {
@@ -175,7 +179,7 @@ class SubscriptionViewModel @Inject constructor(
             }
 
             is CardEvent.Submit -> {
-                handleData(event.plan)
+                validateCardDetails(event.plan)
             }
 
             is CardEvent.SendOTP ->{
@@ -204,6 +208,14 @@ class SubscriptionViewModel @Inject constructor(
             is SubscriptionEvent.RefreshHistory -> {
                 user?.let { getTransactionHistory(it.email, true) }
             }
+            is SubscriptionEvent.FilterHistory -> {
+                val filtered = if (event.planType.isBlank()) subscriptionHistory
+                else subscriptionHistory.filter { it.subscriptionType.equals(event.planType, ignoreCase = true) }
+
+                _subscriptionState.value = _subscriptionState.value.copy(
+                    subscriptionList = filtered
+                )
+            }
 
             is SubscriptionEvent.RefreshAll -> {
                 user?.let {
@@ -218,7 +230,6 @@ class SubscriptionViewModel @Inject constructor(
         paymentState = when(event){
             is PaymentEvent.ResetPaymentError -> {
                 paymentState.copy(error = null)
-
             }
 
             is PaymentEvent.ResetPaymentMessage -> {
@@ -227,7 +238,7 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
-    private fun handleData(plan: SubscriptionPlan){
+    private fun validateCardDetails(plan: SubscriptionPlan){
         val cardNumberResult = validateField.execute(cardDetailsState.cardNumber)
         val cardExpiryDateResult = validateField.execute(cardDetailsState.cardExpiryDate)
         val cardCVVResult = validateField.execute(cardDetailsState.cardCVV)

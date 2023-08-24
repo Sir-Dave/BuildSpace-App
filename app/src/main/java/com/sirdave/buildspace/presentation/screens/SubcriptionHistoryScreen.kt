@@ -3,6 +3,7 @@ package com.sirdave.buildspace.presentation.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,7 +34,7 @@ fun SubscriptionHistory(
     state: SubscriptionState,
     user: User?,
     onSubscriptionEvent: (SubscriptionEvent) -> Unit,
-    onClickProfileIcon: () -> Unit
+    onClickProfileIcon: () -> Unit,
 ){
     val subscriptionHistory = state.subscriptionList
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isLoading)
@@ -41,6 +42,9 @@ fun SubscriptionHistory(
     LaunchedEffect(Unit) {
         onSubscriptionEvent(SubscriptionEvent.GetHistory)
     }
+
+    val plans = listOf("Daily", "Weekly", "Monthly")
+    var selectedPlan by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -80,28 +84,18 @@ fun SubscriptionHistory(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            Row {
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Daily") }
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Weekly") }
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Monthly") }
-                )
+            LazyRow{
+                items(plans){ plan ->
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                        selected = selectedPlan == plan,
+                        onClick = {
+                            selectedPlan = if (selectedPlan == plan) "" else plan
+                            onSubscriptionEvent(SubscriptionEvent.FilterHistory(selectedPlan))
+                        },
+                        label = { Text(plan) },
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
