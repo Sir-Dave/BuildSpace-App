@@ -1,6 +1,9 @@
 package com.sirdave.buildspace.presentation.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,7 +46,7 @@ fun IndividualPlans(
     var selectedPlan by remember { mutableStateOf<SubscriptionPlan?>(null) }
 
     LaunchedEffect(Unit) {
-        onSubscriptionEvent(SubscriptionEvent.RefreshPlans)
+        onSubscriptionEvent(SubscriptionEvent.GetIndividualPlans)
     }
 
     Column(
@@ -89,49 +92,25 @@ fun IndividualPlans(
             )
         }
 
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            content = {
+                itemsIndexed(subscriptionPlans){ index, subscription ->
+                    PlanCard(
+                        plan = subscription,
+                        icons = index + 1,
+                        onPlanSelected = { selected, dialog ->
+                            selectedPlan = selected
+                            showDialog = dialog
+                        }
+                    )
+                }
+            }
+        )
+
         if (subscriptionPlans.isNotEmpty()){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .height(IntrinsicSize.Min)
-            ) {
-                PlanCard(
-                    plan = subscriptionPlans[0],
-                    icons = 1,
-                    modifier = Modifier.weight(1f),
-                    onPlanSelected = { selected, dialog ->
-                        selectedPlan = selected
-                        showDialog = dialog
-                    }
-                )
-
-                PlanCard(
-                    plan = subscriptionPlans[1],
-                    icons = 2,
-                    modifier = Modifier.weight(1f),
-                    onPlanSelected = { selected, dialog ->
-                        selectedPlan = selected
-                        showDialog = dialog
-                    }
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ){
-                PlanCard(
-                    plan = subscriptionPlans[2],
-                    icons = 3,
-                    onPlanSelected = { selected, dialog ->
-                        selectedPlan = selected
-                        showDialog = dialog
-                    }
-                )
-            }
-
             Button(
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(

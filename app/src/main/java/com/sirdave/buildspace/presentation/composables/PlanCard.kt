@@ -74,7 +74,10 @@ fun PlanCard(
                     .padding(8.dp)
             ) {
                 val pay = stringResource(id = R.string.pay).uppercase()
-                Text(text = "$pay #${plan.amount}")
+                Text(
+                    text = "$pay #${plan.amount}",
+                    fontSize = 12.sp
+                )
             }
         }
     }
