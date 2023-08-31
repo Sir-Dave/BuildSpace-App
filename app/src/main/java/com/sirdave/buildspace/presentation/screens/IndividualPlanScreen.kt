@@ -30,7 +30,7 @@ import com.sirdave.buildspace.presentation.subscription.SubscriptionState
 import com.sirdave.buildspace.ui.theme.LightBackground
 
 @Composable
-fun SubscriptionPlans(
+fun IndividualPlans(
     state: SubscriptionState,
     user: User?,
     paymentState: PaymentState,
@@ -205,66 +205,6 @@ fun SubscriptionPlans(
 
         if (paymentState.error != null) {
             showPaymentDialog = true
-        }
-    }
-}
-
-@Composable
-fun PlanCard(
-    plan: SubscriptionPlan,
-    icons: Int,
-    onPlanSelected: (SubscriptionPlan, Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-){
-    OutlinedCard(
-        modifier = modifier.padding(
-                start = 8.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            ),
-        border = BorderStroke(1.dp, Color.Black),
-        colors = CardDefaults.cardColors(
-            containerColor = LightBackground
-        )
-    ) {
-        Column(
-            modifier = modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                for (i in 1..icons) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.electric_bolt_24),
-                        contentDescription = null
-                    )
-                }
-            }
-
-            Text(
-                text = plan.name,
-                fontSize = 10.sp,
-                letterSpacing = 1.5.sp,
-                textAlign = TextAlign.Center
-            )
-
-            Button(
-                onClick = {
-                    onPlanSelected(plan, true)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                val pay = stringResource(id = R.string.pay).uppercase()
-                Text(text = "$pay #${plan.amount}")
-            }
         }
     }
 }
