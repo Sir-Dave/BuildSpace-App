@@ -26,7 +26,7 @@ import com.sirdave.buildspace.presentation.subscription.SubscriptionEvent
 import com.sirdave.buildspace.presentation.subscription.SubscriptionState
 
 @Composable
-fun IndividualPlans(
+fun TeamPlans(
     state: SubscriptionState,
     paymentState: PaymentState,
     cardState: CardDetailsState,

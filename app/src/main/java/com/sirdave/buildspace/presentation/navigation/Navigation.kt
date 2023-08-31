@@ -8,12 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.sirdave.buildspace.presentation.main.MainScreen
-import com.sirdave.buildspace.presentation.main.MainViewModel
 import com.sirdave.buildspace.presentation.auth.sign_in.SignIn
 import com.sirdave.buildspace.presentation.auth.sign_in.SignInViewModel
 import com.sirdave.buildspace.presentation.auth.sign_up.SignUp
 import com.sirdave.buildspace.presentation.auth.sign_up.SignUpViewModel
+import com.sirdave.buildspace.presentation.main.MainScreen
+import com.sirdave.buildspace.presentation.main.MainViewModel
 import com.sirdave.buildspace.presentation.screens.Dashboard
 import com.sirdave.buildspace.presentation.screens.SubscriptionHistory
 import com.sirdave.buildspace.presentation.screens.SubscriptionPlans
