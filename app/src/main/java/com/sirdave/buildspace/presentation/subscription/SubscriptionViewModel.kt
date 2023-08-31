@@ -124,10 +124,10 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
-    private fun getSubscriptionPlans(fetchFromRemote: Boolean = false){
+    private fun getSubscriptionPlans(type: String, fetchFromRemote: Boolean = false){
         _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
         viewModelScope.launch {
-            val subscriptionPlansResult = repository.getAllSubscriptionPlans(fetchFromRemote)
+            val subscriptionPlansResult = repository.getSubscriptionPlans(type, fetchFromRemote)
             subscriptionPlansResult.collect{
                 withContext(Dispatchers.Main){
                     when (val result = it) {
@@ -197,9 +197,9 @@ class SubscriptionViewModel @Inject constructor(
                 user?.let { getCurrentSubscription(it.id, true) }
             }
 
-            is SubscriptionEvent.GetPlans -> getSubscriptionPlans()
+            is SubscriptionEvent.GetIndividualPlans -> getSubscriptionPlans("individual")
 
-            is SubscriptionEvent.RefreshPlans -> getSubscriptionPlans(true)
+            is SubscriptionEvent.GetTeamPlans -> getSubscriptionPlans("team")
 
             is SubscriptionEvent.GetHistory -> {
                 user?.let { getTransactionHistory(it.email) }
