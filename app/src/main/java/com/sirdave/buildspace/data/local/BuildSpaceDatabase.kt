@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
         SubscriptionPlanEntity::class,
         SubscriptionHistoryEntity::class,
     ],
-    version = 1
+    version = 2
 )
 abstract class BuildSpaceDatabase: RoomDatabase() {
     abstract val dao : BuildSpaceDao
