@@ -55,7 +55,9 @@ interface Api {
     ): Response<SubscriptionDto>
 
     @GET("api/v1/subscriptions/plans")
-    suspend fun getAllSubscriptionPlans(): Response<List<SubscriptionPlanDto>>
+    suspend fun getSubscriptionPlans(
+        @Query("category") category: String
+    ): Response<List<SubscriptionPlanDto>>
 
     @FormUrlEncoded
     @POST("api/v1/payments")

@@ -111,25 +111,25 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllSubscriptionPlans(fetchFromRemote: Boolean
+    override suspend fun getSubscriptionPlans(type: String, fetchFromRemote: Boolean
     ): Flow<Resource<List<SubscriptionPlan>>> {
-        val localSubscriptionPlans = dao.getSubscriptionPlans()
+        val localSubscriptionPlans = dao.getSubscriptionPlans(type)
         val shouldLoadFromCache = localSubscriptionPlans.isNotEmpty() && !fetchFromRemote
 
         if (shouldLoadFromCache) {
-            Log.d(TAG, "fetching plans from DB")
+            Log.d(TAG, "fetching plans from DB for type $type")
             return flow {
                 emit(Resource.Success(data = localSubscriptionPlans.map { it.toSubscriptionPlan() } ))
             }
         }
 
-        Log.d(TAG, "fetching plans from remote server")
-        val request = apiRequestFlow(context) { api.getAllSubscriptionPlans() }
+        Log.d(TAG, "fetching plans from remote server for type $type")
+        val request = apiRequestFlow(context) { api.getSubscriptionPlans(type) }
         return request.map { dtoResource ->
             when (dtoResource){
                 is Resource.Success -> {
                     val plansDto = dtoResource.data!!
-                    dao.clearPlans()
+                    dao.clearPlanType(type)
                     dao.insertSubscriptionPlans(plansDto.map { it.toSubscriptionPlanEntity() })
                     Resource.Success(
                         data = plansDto.map { it.toSubscriptionPlan() }

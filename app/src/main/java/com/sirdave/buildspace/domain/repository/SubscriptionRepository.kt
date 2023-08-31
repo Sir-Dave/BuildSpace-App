@@ -14,7 +14,8 @@ interface SubscriptionRepository {
 
     suspend fun getSubscriptionById(id: String): Flow<Resource<Subscription>>
 
-    suspend fun getAllSubscriptionPlans(fetchFromRemote: Boolean): Flow<Resource<List<SubscriptionPlan>>>
+    suspend fun getSubscriptionPlans(type: String, fetchFromRemote: Boolean)
+    : Flow<Resource<List<SubscriptionPlan>>>
 
     suspend fun createSubscription(
         email: String,
