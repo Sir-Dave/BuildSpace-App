@@ -138,7 +138,8 @@ fun SubscriptionPlanDto.toSubscriptionPlan(): SubscriptionPlan{
     return SubscriptionPlan(
         name = name,
         amount = amount.toInt().toString(),
-        numberOfDays = numberOfDays
+        numberOfDays = numberOfDays,
+        type = type
     )
 }
 
@@ -146,7 +147,8 @@ fun SubscriptionPlanEntity.toSubscriptionPlan(): SubscriptionPlan {
     return SubscriptionPlan(
         name = name,
         amount = amount.toInt().toString(),
-        numberOfDays = numberOfDays
+        numberOfDays = numberOfDays,
+        type = type
     )
 }
 
@@ -154,7 +156,8 @@ fun SubscriptionPlanDto.toSubscriptionPlanEntity(): SubscriptionPlanEntity{
     return SubscriptionPlanEntity(
         name = name,
         amount = amount,
-        numberOfDays = numberOfDays
+        numberOfDays = numberOfDays,
+        type = type
     )
 }
 

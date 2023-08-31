@@ -13,7 +13,8 @@ data class SubscriptionDto(
 data class SubscriptionPlanDto(
     val name: String,
     val amount: Double,
-    val numberOfDays: Int
+    val numberOfDays: Int,
+    val type: String
 )
 
 data class SubscriptionHistoryDto(

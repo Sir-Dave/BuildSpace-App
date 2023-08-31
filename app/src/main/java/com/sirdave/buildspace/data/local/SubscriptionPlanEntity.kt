@@ -8,5 +8,6 @@ class SubscriptionPlanEntity(
     @PrimaryKey val id: Int? = null,
     val name: String,
     val amount: Double,
-    val numberOfDays: Int
+    val numberOfDays: Int,
+    val type: String
 )
