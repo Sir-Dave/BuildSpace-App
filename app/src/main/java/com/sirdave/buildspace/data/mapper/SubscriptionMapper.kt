@@ -10,6 +10,7 @@ import com.sirdave.buildspace.domain.model.Subscription
 import com.sirdave.buildspace.domain.model.SubscriptionHistory
 import com.sirdave.buildspace.domain.model.SubscriptionPlan
 import com.sirdave.buildspace.util.Status
+import com.sirdave.buildspace.util.formatAmount
 import com.sirdave.buildspace.util.getEnumName
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -31,7 +32,7 @@ fun SubscriptionDto.toSubscription(): Subscription{
         startDate = formattedStartDate,
         endDate = formattedEndDate,
         type = type,
-        amount = String.format("%.2f", amount),
+        amount = formatAmount(amount, true),
         expired = expired
     )
 }
@@ -64,7 +65,7 @@ fun SubscriptionEntity.toSubscription(): Subscription{
         startDate = formattedStartDate,
         endDate = formattedEndDate,
         type = type,
-        amount = String.format("%.2f", amount),
+        amount = formatAmount(amount, true),
         expired = expired
     )
 }
@@ -84,7 +85,7 @@ fun SubscriptionHistoryDto.toSubscriptionHistory(): SubscriptionHistory {
 
     return SubscriptionHistory(
         id = id,
-        amount = String.format("%.2f", formattedAmount),
+        amount = formatAmount(formattedAmount, true),
         reference = reference,
         date = formattedDate,
         status = status,
@@ -110,7 +111,7 @@ fun SubscriptionHistoryEntity.toSubscriptionHistory(): SubscriptionHistory {
 
     return SubscriptionHistory(
         id = id,
-        amount = String.format("%.2f", formattedAmount),
+        amount = formatAmount(formattedAmount, true),
         reference = reference,
         date = formattedDate,
         status = status,
@@ -137,7 +138,7 @@ fun SubscriptionHistoryDto.toSubscriptionHistoryEntity(): SubscriptionHistoryEnt
 fun SubscriptionPlanDto.toSubscriptionPlan(): SubscriptionPlan{
     return SubscriptionPlan(
         name = name,
-        amount = amount.toInt().toString(),
+        amount = formatAmount(amount),
         numberOfDays = numberOfDays,
         type = type
     )
@@ -146,7 +147,7 @@ fun SubscriptionPlanDto.toSubscriptionPlan(): SubscriptionPlan{
 fun SubscriptionPlanEntity.toSubscriptionPlan(): SubscriptionPlan {
     return SubscriptionPlan(
         name = name,
-        amount = amount.toInt().toString(),
+        amount = formatAmount(amount),
         numberOfDays = numberOfDays,
         type = type
     )
