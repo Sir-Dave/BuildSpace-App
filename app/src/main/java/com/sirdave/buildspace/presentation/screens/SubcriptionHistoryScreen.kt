@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,14 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.sirdave.buildspace.R
 import com.sirdave.buildspace.domain.model.User
 import com.sirdave.buildspace.presentation.composables.CircularText
 import com.sirdave.buildspace.presentation.composables.SubscriptionCard
 import com.sirdave.buildspace.presentation.subscription.SubscriptionEvent
 import com.sirdave.buildspace.presentation.subscription.SubscriptionState
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +40,12 @@ fun SubscriptionHistory(
         onSubscriptionEvent(SubscriptionEvent.GetHistory)
     }
 
-    val plans = listOf("Daily", "Weekly", "Monthly")
+    val plans by remember {
+        mutableStateOf(listOf("Daily", "Weekly", "Monthly",
+            "Team Monthly", "Team Quarterly", "Team Biannual", "Team Yearly")
+        )
+    }
+
     var selectedPlan by remember { mutableStateOf("") }
 
     Column(
@@ -78,59 +80,18 @@ fun SubscriptionHistory(
                 .padding(8.dp)
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ){
-            LazyRow{
-                items(plans){ plan ->
-                    FilterChip(
-                        modifier = Modifier.padding(horizontal = 6.dp),
-                        selected = selectedPlan == plan,
-                        onClick = {
-                            selectedPlan = if (selectedPlan == plan) "" else plan
-                            onSubscriptionEvent(SubscriptionEvent.FilterHistory(selectedPlan))
-                        },
-                        label = { Text(plan) },
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Row {
+        LazyRow(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)){
+            items(plans){ plan ->
                 FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("") },
-                    shape = RoundedCornerShape(
-                        topStart = 8.dp,
-                        bottomStart = 8.dp
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.priority_high_24),
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
+                    modifier = Modifier.padding(horizontal = 6.dp),
+                    selected = selectedPlan == plan,
+                    onClick = {
+                        selectedPlan = if (selectedPlan == plan) "" else plan
+                        onSubscriptionEvent(SubscriptionEvent.FilterHistory(selectedPlan))
                     },
-                    modifier = Modifier.width(35.dp)
-                )
-
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("") },
-                    shape = RoundedCornerShape(
-                        topEnd = 8.dp,
-                        bottomEnd = 8.dp
-                    ),
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                    },
-                    modifier = Modifier.width(35.dp)
+                    label = { Text(plan) },
                 )
             }
         }
