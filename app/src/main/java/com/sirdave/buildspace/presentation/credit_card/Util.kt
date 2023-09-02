@@ -1,31 +1,41 @@
 package com.sirdave.buildspace.presentation.credit_card
 
-fun formatCardNumber(input: String): String {
-    var formattedText = input
-    formattedText = formattedText.replace(Regex("\\D"), "")
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 
-    // Calculate the number of groups needed (grouping in multiples of 4)
-    val remainingDigits = formattedText.length % 4
-    val groups = formattedText.length / 4
+fun formatCardNumber(text: AnnotatedString): TransformedText {
+    val trimmed = if (text.text.length >= 16) text.text.substring(0..15) else text.text
 
-    // Build the formatted string with grouped digits
-    val formattedStringBuilder = StringBuilder()
-    for (i in 0 until groups) {
-        val start = i * 4
-        val end = (i + 1) * 4
-        formattedStringBuilder.append(formattedText.substring(start, end))
-        formattedStringBuilder.append(" ")
+    val annotatedString = AnnotatedString.Builder().run {
+        for (i in trimmed.indices) {
+            append(trimmed[i])
+            if (i % 4 == 3 && i != 15) {
+                append(" ")
+            }
+        }
+        toAnnotatedString()
     }
 
-    // Append the remaining digits
-    if (remainingDigits > 0) {
-        formattedStringBuilder.append(formattedText.substring(groups * 4))
-    } else {
-        // Remove the trailing space if no remaining digits
-        formattedStringBuilder.deleteCharAt(formattedStringBuilder.length - 1)
+    val creditCardOffsetTranslator = object : OffsetMapping {
+        override fun originalToTransformed(offset: Int): Int {
+            if (offset <= 3) return offset
+            if (offset <= 7) return offset + 1
+            if (offset <= 11) return offset + 2
+            if (offset <= 16) return offset + 3
+            return 19
+        }
+
+        override fun transformedToOriginal(offset: Int): Int {
+            if (offset <= 4) return offset
+            if (offset <= 9) return offset - 1
+            if (offset <= 14) return offset - 2
+            if (offset <= 19) return offset - 3
+            return 16
+        }
     }
 
-    return formattedStringBuilder.toString()
+    return TransformedText(annotatedString, creditCardOffsetTranslator)
 }
 
 fun formatExpirationDate(input: String): String {
@@ -40,25 +50,9 @@ fun formatExpirationDate(input: String): String {
     return formattedText
 }
 
-fun formatCvv(input: String): String {
-    var formattedText = input
-    formattedText = formattedText.replace(Regex("\\D"), "")
-    return formattedText.take(3)
-}
-
-fun formatPin(input: String): String {
-    var formattedText = input
-    formattedText = formattedText.replace(Regex("\\D"), "")
-    return formattedText.take(4)
-}
-
 fun getMonthAndYear(date: String): Pair<String, String>{
     val fields = date.split("/")
     return Pair(fields[0], fields[1]) //(month, year)
-}
-
-fun stripFormatting(input: String): String {
-    return input.replace(Regex("\\D"), "")
 }
 
 private fun String.insert(index: Int, other: String): String {

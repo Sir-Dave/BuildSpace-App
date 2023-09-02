@@ -157,21 +157,18 @@ class SubscriptionViewModel @Inject constructor(
     fun onEvent(event: CardEvent){
         when (event){
             is CardEvent.CardNumberChanged -> {
-                val formattedNumber = formatCardNumber(event.number)
-                cardDetailsState = cardDetailsState.copy(cardNumber = formattedNumber)
+                cardDetailsState = cardDetailsState.copy(cardNumber = event.number)
             }
             is CardEvent.CardExpiryDateChanged -> {
                 val formattedDate = formatExpirationDate(event.expiryDate)
                 cardDetailsState = cardDetailsState.copy(cardExpiryDate = formattedDate)
             }
             is CardEvent.CardCVCChanged -> {
-                val formattedCVV = formatCvv(event.cvc)
-                cardDetailsState = cardDetailsState.copy(cardCVV = formattedCVV)
+                cardDetailsState = cardDetailsState.copy(cardCVV = event.cvc)
             }
 
             is CardEvent.CardPinChanged ->{
-                val formattedPin = formatPin(event.pin)
-                cardDetailsState = cardDetailsState.copy(cardPin = formattedPin)
+                cardDetailsState = cardDetailsState.copy(cardPin = event.pin)
             }
 
             is CardEvent.CardOTPChanged -> {
@@ -267,11 +264,11 @@ class SubscriptionViewModel @Inject constructor(
         createSubscription(
             email = user?.email ?: "",
             amount = plan.amount.toDouble(),
-            cardCvv = stripFormatting(cardDetailsState.cardCVV),
-            cardNumber = stripFormatting(cardDetailsState.cardNumber),
+            cardCvv = cardDetailsState.cardCVV,
+            cardNumber = cardDetailsState.cardNumber,
             cardExpiryMonth = month,
             cardExpiryYear = year,
-            pin = stripFormatting(cardDetailsState.cardPin),
+            pin = cardDetailsState.cardPin,
             type = plan.name
         )
     }

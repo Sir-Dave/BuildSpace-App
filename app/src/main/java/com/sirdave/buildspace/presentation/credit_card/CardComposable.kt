@@ -176,7 +176,7 @@ fun DebitCardComposable(
         )
         OutlinedTextField(
             value = cardState.cardNumber,
-            onValueChange = { onEvent(CardEvent.CardNumberChanged(it))
+            onValueChange = { onEvent(CardEvent.CardNumberChanged(it.take(16)))
             },
             label = {
                 if (cardState.cardNumberError != null){
@@ -205,7 +205,8 @@ fun DebitCardComposable(
                 onNext =  {
                     expirationDateFocusRequester.requestFocus()
                 }
-            )
+            ),
+            visualTransformation = { formatCardNumber(it) }
         )
 
         Row(
@@ -255,7 +256,7 @@ fun DebitCardComposable(
             OutlinedTextField(
                 value = cardState.cardCVV,
                 onValueChange = {
-                    onEvent(CardEvent.CardCVCChanged(it))
+                    onEvent(CardEvent.CardCVCChanged(it.take(3)))
 
                     if (cardState.cardCVV.length == 3) {
                         pinFocusRequester.requestFocus()
@@ -294,7 +295,7 @@ fun DebitCardComposable(
         OutlinedTextField(
             value = cardState.cardPin,
             onValueChange = {
-                onEvent(CardEvent.CardPinChanged(it))
+                onEvent(CardEvent.CardPinChanged(it.take(4)))
             },
             label = {
                 if (cardState.cardPinError != null){
