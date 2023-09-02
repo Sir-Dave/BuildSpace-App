@@ -7,12 +7,6 @@ enum class Status {
     CANCELLED
 }
 
-enum class SubscriptionType{
-    DAILY,
-    WEEKLY,
-    MONTHLY
-}
-
 inline fun <reified T : Enum<T>> getEnumName(name: String): T {
     check (isValidEnum<T>(name)){
         throw IllegalStateException("Invalid ${T::class.simpleName} name")

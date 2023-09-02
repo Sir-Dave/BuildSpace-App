@@ -1,5 +1,6 @@
 package com.sirdave.buildspace.data.mapper
 
+import android.icu.text.DecimalFormat
 import com.sirdave.buildspace.data.local.SubscriptionEntity
 import com.sirdave.buildspace.data.local.SubscriptionHistoryEntity
 import com.sirdave.buildspace.data.local.SubscriptionPlanEntity
@@ -10,7 +11,6 @@ import com.sirdave.buildspace.domain.model.Subscription
 import com.sirdave.buildspace.domain.model.SubscriptionHistory
 import com.sirdave.buildspace.domain.model.SubscriptionPlan
 import com.sirdave.buildspace.util.Status
-import com.sirdave.buildspace.util.formatAmount
 import com.sirdave.buildspace.util.getEnumName
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -162,4 +162,11 @@ fun SubscriptionPlanDto.toSubscriptionPlanEntity(): SubscriptionPlanEntity{
     )
 }
 
+fun formatAmount(amount: Double, toDecimal: Boolean = false): String {
+    val formatter = if (toDecimal)
+        DecimalFormat("#,###.00")
+
+    else DecimalFormat("#,###")
+    return formatter.format(amount)
+}
 
