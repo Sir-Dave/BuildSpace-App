@@ -206,7 +206,7 @@ fun DebitCardComposable(
                     expirationDateFocusRequester.requestFocus()
                 }
             ),
-            visualTransformation = { formatCardNumber(it) }
+            visualTransformation = CardNumberTransformation()
         )
 
         Row(
@@ -217,7 +217,7 @@ fun DebitCardComposable(
             OutlinedTextField(
                 value = cardState.cardExpiryDate,
                 onValueChange = {
-                    onEvent(CardEvent.CardExpiryDateChanged(it))
+                    onEvent(CardEvent.CardExpiryDateChanged(it.take(4)))
 
                     if (cardState.cardExpiryDate.length == 5) {
                         cvvFocusRequester.requestFocus()
@@ -249,7 +249,8 @@ fun DebitCardComposable(
                     onNext =  {
                         cvvFocusRequester.requestFocus()
                     }
-                )
+                ),
+                visualTransformation = CardExpirationDateTransformation()
             )
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -329,7 +330,8 @@ fun DebitCardComposable(
         Button(
             onClick = {
                 onEvent(CardEvent.Submit(plan))
-                onDismissRequest()
+                if (!hasError(cardState))
+                    onDismissRequest()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -345,4 +347,12 @@ fun DebitCardComposable(
         }
 
     }
+}
+
+fun hasError(cardState: CardDetailsState): Boolean{
+    if (cardState.cardOTPError != null || cardState.cardCVVError ==  null ||
+                cardState.cardNumberError != null || cardState.cardExpiryDateError != null)
+        return true
+
+    return false
 }

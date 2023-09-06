@@ -12,7 +12,8 @@ import com.sirdave.buildspace.domain.model.User
 import com.sirdave.buildspace.domain.repository.SubscriptionRepository
 import com.sirdave.buildspace.domain.use_cases.ValidateField
 import com.sirdave.buildspace.presentation.ErrorEvent
-import com.sirdave.buildspace.presentation.credit_card.*
+import com.sirdave.buildspace.presentation.credit_card.CardDetailsState
+import com.sirdave.buildspace.presentation.credit_card.CardEvent
 import com.sirdave.buildspace.presentation.payment.PaymentEvent
 import com.sirdave.buildspace.presentation.payment.PaymentState
 import com.sirdave.buildspace.util.Resource
@@ -160,8 +161,7 @@ class SubscriptionViewModel @Inject constructor(
                 cardDetailsState = cardDetailsState.copy(cardNumber = event.number)
             }
             is CardEvent.CardExpiryDateChanged -> {
-                val formattedDate = formatExpirationDate(event.expiryDate)
-                cardDetailsState = cardDetailsState.copy(cardExpiryDate = formattedDate)
+                cardDetailsState = cardDetailsState.copy(cardExpiryDate = event.expiryDate)
             }
             is CardEvent.CardCVCChanged -> {
                 cardDetailsState = cardDetailsState.copy(cardCVV = event.cvc)
@@ -258,8 +258,8 @@ class SubscriptionViewModel @Inject constructor(
             return
         }
 
-        val month = getMonthAndYear(cardDetailsState.cardExpiryDate).first
-        val year = getMonthAndYear(cardDetailsState.cardExpiryDate).second
+        val month = cardDetailsState.cardExpiryDate.substring(0, 2)
+        val year = cardDetailsState.cardExpiryDate.substring(2)
 
         createSubscription(
             email = user?.email ?: "",
