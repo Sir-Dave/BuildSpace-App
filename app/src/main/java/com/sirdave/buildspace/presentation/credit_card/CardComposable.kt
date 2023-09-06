@@ -113,7 +113,8 @@ fun OTPDialog(
                 Button(
                     onClick = {
                         onEvent(CardEvent.SendOTP)
-                        onDismissRequest()
+                        if (cardState.cardOTPError == null)
+                            onDismissRequest()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
