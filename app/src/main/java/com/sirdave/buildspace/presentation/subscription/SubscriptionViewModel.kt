@@ -57,6 +57,11 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
+    private suspend fun <T> triggerUserLogout(result: Resource.Error<T>){
+        if (result.message == "Token has expired, login to continue" ||
+            result.message == "You need to log in to access this page")
+            errorEventChannel.send(ErrorEvent.UserNeedsToLoginEvent)
+    }
     private fun getCurrentSubscription(userId: String, fetchFromRemote: Boolean = false){
         _subscriptionState.value = _subscriptionState.value.copy(isLoading = true)
         viewModelScope.launch {
@@ -80,9 +85,7 @@ class SubscriptionViewModel @Inject constructor(
                                 currentSubscription = null
                             )
 
-                            if (result.message == "Token has expired, login to continue" ||
-                                result.message == "You need to log in to access this page")
-                                errorEventChannel.send(ErrorEvent.UserNeedsToLoginEvent)
+                            triggerUserLogout(result)
                         }
 
                         else -> Unit
@@ -117,6 +120,8 @@ class SubscriptionViewModel @Inject constructor(
                                 error = result.message,
                                 subscriptionList = emptyList()
                             )
+
+                            triggerUserLogout(result)
                         }
                         else -> Unit
                     }
@@ -147,6 +152,7 @@ class SubscriptionViewModel @Inject constructor(
                                 error = result.message,
                                 subscriptionPlans = emptyList()
                             )
+                            triggerUserLogout(result)
                         }
                         else -> Unit
                     }

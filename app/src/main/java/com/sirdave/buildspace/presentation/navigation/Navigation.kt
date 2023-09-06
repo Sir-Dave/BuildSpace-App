@@ -147,7 +147,13 @@ fun Navigation(
                     onEvent = viewModel::onEvent,
                     onClickProfileIcon = {
                         toggleBottomSheet()
-                    }
+                    },
+                    onNavigateToLogin = {
+                        navHostController.navigate(Screen.SignInScreen.route){
+                            popUpTo(Screen.DashboardScreen.route) { inclusive = true }
+                        }
+                    },
+                    errorEvent = viewModel.errorEvent,
                 )
             }
 
@@ -159,7 +165,13 @@ fun Navigation(
                     onSubscriptionEvent = viewModel::onSubscriptionEvent,
                     onClickProfileIcon = {
                         toggleBottomSheet()
-                    }
+                    },
+                    onNavigateToLogin = {
+                        navHostController.navigate(Screen.SignInScreen.route){
+                            popUpTo(Screen.DashboardScreen.route) { inclusive = true }
+                        }
+                    },
+                    errorEvent = viewModel.errorEvent,
                 )
             }
         }
