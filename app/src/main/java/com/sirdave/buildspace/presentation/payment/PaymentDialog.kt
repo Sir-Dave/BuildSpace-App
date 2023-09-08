@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sirdave.buildspace.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentDialog(
     isSuccess: Boolean,

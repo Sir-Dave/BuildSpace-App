@@ -162,7 +162,7 @@ fun DebitCardComposable(
             textAlign = TextAlign.Center
         )
         Text(
-            text = "You are about to make payment for ${plan.name.lowercase()} at #${plan.amount}",
+            text = "You are about to make payment for ${plan.name} plan at #${plan.amount}",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
