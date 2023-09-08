@@ -25,7 +25,7 @@ interface SubscriptionRepository {
         cardExpiryMonth: String,
         cardExpiryYear: String,
         pin: String,
-        type: String
+        name: String
     ): Flow<Resource<PaymentDto>>
 
     suspend fun sendOTP(otp: String, reference: String): Flow<Resource<PaymentDto>>

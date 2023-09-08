@@ -69,7 +69,7 @@ interface Api {
         @Field("cardExpiryMonth") cardExpiryMonth: String,
         @Field("cardExpiryYear") cardExpiryYear: String,
         @Field("pin") pin: String,
-        @Field("subscriptionType") type: String
+        @Field("planName") name: String
     ): Response<PaymentDto>
 
     @FormUrlEncoded

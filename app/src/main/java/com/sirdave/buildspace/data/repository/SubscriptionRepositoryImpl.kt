@@ -149,7 +149,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         cardExpiryMonth: String,
         cardExpiryYear: String,
         pin: String,
-        type: String
+        name: String
     ): Flow<Resource<PaymentDto>> {
         return apiRequestFlow(context) {
             api.makePayment(
@@ -160,7 +160,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
                 cardExpiryMonth = cardExpiryMonth,
                 cardExpiryYear = cardExpiryYear,
                 pin = pin,
-                type = type
+                name = name
             )
         }
     }

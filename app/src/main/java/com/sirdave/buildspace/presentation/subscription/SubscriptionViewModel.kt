@@ -275,12 +275,12 @@ class SubscriptionViewModel @Inject constructor(
             cardExpiryMonth = month,
             cardExpiryYear = year,
             pin = cardDetailsState.cardPin,
-            type = plan.name
+            name = plan.name
         )
     }
     private fun createSubscription(email: String, amount: Double, cardCvv: String,
                                    cardNumber: String, cardExpiryMonth: String,
-                                   cardExpiryYear: String, pin: String, type: String){
+                                   cardExpiryYear: String, pin: String, name: String){
         paymentState = paymentState.copy(isPaymentLoading = true)
         viewModelScope.launch {
             repository.createSubscription(
@@ -291,7 +291,7 @@ class SubscriptionViewModel @Inject constructor(
                 cardExpiryMonth = cardExpiryMonth,
                 cardExpiryYear = cardExpiryYear,
                 pin = pin,
-                type = type
+                name = name
             ).collect{
                 withContext(Dispatchers.Main){
                     when (val result = it){
