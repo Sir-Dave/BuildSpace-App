@@ -269,7 +269,7 @@ class SubscriptionViewModel @Inject constructor(
 
         createSubscription(
             email = user?.email ?: "",
-            amount = plan.amount.toDouble(),
+            amount = stripFormatting(plan.amount).toDouble(),
             cardCvv = cardDetailsState.cardCVV,
             cardNumber = cardDetailsState.cardNumber,
             cardExpiryMonth = month,
@@ -353,5 +353,9 @@ class SubscriptionViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun stripFormatting(input: String): String{
+        return input.replace(Regex("\\D"), "")
     }
 }
