@@ -63,7 +63,7 @@ fun SubscriptionHistory(
 
     val plans by remember {
         mutableStateOf(listOf("Daily", "Weekly", "Monthly",
-            "Team Monthly", "Team Quarterly", "Team Biannual", "Team Yearly")
+            "Monthly (Team)", "Quarterly (Team)", "Biannual (Team)", "Yearly (Team)")
         )
     }
 
