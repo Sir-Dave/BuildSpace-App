@@ -19,10 +19,10 @@ interface BuildSpaceDao {
     @Insert(onConflict = REPLACE)
     suspend fun insertSubscriptionPlans(plans: List<SubscriptionPlanEntity>)
 
-    @Query("SELECT * FROM subscriptionplanentity WHERE type = :type")
+    @Query("SELECT * FROM subscriptionplanentity WHERE type = UPPER(:type)")
     suspend fun getSubscriptionPlans(type: String): List<SubscriptionPlanEntity>
 
-    @Query("DELETE FROM subscriptionplanentity WHERE type = :type")
+    @Query("DELETE FROM subscriptionplanentity WHERE type = UPPER(:type)")
     suspend fun clearPlanType(type: String)
 
     @Insert(onConflict = REPLACE)
