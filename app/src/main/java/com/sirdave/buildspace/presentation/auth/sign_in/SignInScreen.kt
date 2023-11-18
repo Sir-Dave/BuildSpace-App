@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sirdave.buildspace.R
 import com.sirdave.buildspace.presentation.auth.AuthState
+import com.sirdave.buildspace.util.observeAsEvents
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -38,17 +39,15 @@ fun SignIn(
 ){
     val context = LocalContext.current
     var isPasswordVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = context){
-        validationEvent.collect{ event ->
-            when (event){
-                is SignInEvent.Success ->{ onNavigateToHomeScreen() }
-                is SignInEvent.Failure -> {
-                    Toast.makeText(
-                        context,
-                        event.errorMessage,
-                        Toast.LENGTH_SHORT).show()
-                }
+    
+    observeAsEvents(flow = validationEvent){
+        when (val event = it ){
+            is SignInEvent.Success ->{ onNavigateToHomeScreen() }
+            is SignInEvent.Failure -> {
+                Toast.makeText(
+                    context,
+                    event.errorMessage,
+                    Toast.LENGTH_SHORT).show()
             }
         }
     }

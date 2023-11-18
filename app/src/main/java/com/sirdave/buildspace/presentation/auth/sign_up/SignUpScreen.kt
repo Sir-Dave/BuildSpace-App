@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sirdave.buildspace.R
 import com.sirdave.buildspace.presentation.auth.AuthState
+import com.sirdave.buildspace.util.observeAsEvents
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -41,25 +42,23 @@ fun SignUp(
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isRepeatedPasswordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = context){
-        registrationEvent.collect{ event ->
-            when (event){
-                is RegistrationEvent.Success ->{
-                    Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT).show()
+    observeAsEvents(flow = registrationEvent){
+        when (val event = it ){
+            is RegistrationEvent.Success ->{
+                Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_SHORT).show()
 
-                    onNavigateToSignInScreen()
+                onNavigateToSignInScreen()
 
-                }
+            }
 
-                is RegistrationEvent.Failure -> {
-                    Toast.makeText(
-                        context,
-                        event.errorMessage,
-                        Toast.LENGTH_SHORT).show()
-                }
+            is RegistrationEvent.Failure -> {
+                Toast.makeText(
+                    context,
+                    event.errorMessage,
+                    Toast.LENGTH_SHORT).show()
             }
         }
     }

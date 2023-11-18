@@ -24,6 +24,7 @@ import com.sirdave.buildspace.presentation.payment.PaymentEvent
 import com.sirdave.buildspace.presentation.payment.PaymentState
 import com.sirdave.buildspace.presentation.subscription.SubscriptionEvent
 import com.sirdave.buildspace.presentation.subscription.SubscriptionState
+import com.sirdave.buildspace.util.observeAsEvents
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -42,19 +43,15 @@ fun SubscriptionPlans(
 ){
     val context = LocalContext.current
 
-    LaunchedEffect(Unit){
-
-        errorEvent.collect{ event ->
-            when (event){
-                ErrorEvent.UserNeedsToLoginEvent -> {
-
-                    Toast.makeText(
-                        context,
-                        "Session expired, you need to login again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    onNavigateToLogin()
-                }
+    observeAsEvents(flow = errorEvent){
+        when (it){
+            is ErrorEvent.UserNeedsToLoginEvent -> {
+                Toast.makeText(
+                    context,
+                    "Session expired, you need to login again",
+                    Toast.LENGTH_SHORT
+                ).show()
+                onNavigateToLogin()
             }
         }
     }
@@ -93,7 +90,8 @@ fun SubscriptionPlans(
         Column(modifier = Modifier.fillMaxWidth()) {
             TabRow(
                 selectedTabIndex = tabIndex,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
                 tabs.forEachIndexed { index, title ->
